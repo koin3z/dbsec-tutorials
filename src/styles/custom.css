@@ -20,3 +20,34 @@
 .sl-markdown-content h3 {
   font-size: 1.5rem;
 }
+
+/* --- トップページ（splash）専用の調整 --- */
+html[data-has-hero] .hero {
+  padding-block: 1rem 1.75rem;
+}
+html[data-has-hero] .hero h1 {
+  font-size: 3rem;     /* 4rem -> 3rem */
+  line-height: 1.2;
+}
+html[data-has-hero] .hero .tagline {
+  font-size: 1.125rem; /* 20px -> 18px */
+  line-height: 1.7;
+  max-width: none;     /* タグラインの途中改行を防ぐ */
+}
+html[data-has-hero] .hero img {
+  width: min(220px, 100%);
+  height: auto;
+  margin-inline: auto;
+}
+/* hero のアクションボタンを控えめに */
+html[data-has-hero] .hero .sl-link-button {
+  font-size: 0.9375rem;
+  padding: 0.5rem 1.125rem;
+}
+html[data-has-hero] .sl-markdown-content h2 {
+  font-size: 1.5rem;   /* セクション見出し 1.8rem -> 1.5rem */
+  margin-top: 2.5rem;
+}
+html[data-has-hero] .sl-markdown-content h2:first-of-type {
+  margin-top: 1.5rem;
+}

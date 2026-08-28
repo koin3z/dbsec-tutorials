@@ -17,118 +17,48 @@ hero:
       variant: minimal
 ---
 
-import { LinkCard, Card, CardGrid, Aside } from '@astrojs/starlight/components';
+import { LinkCard, CardGrid, Aside } from '@astrojs/starlight/components';
 
-<LinkCard
-  title="Getting Started — まずはここから"
-  description="Oracle DB 26ai Free のセットアップと SQLcl・サンプルスキーマの準備手順です。各チュートリアルの前提環境をここで整えます。"
-  href="./getting-started"
-/>
+各手順は **Oracle Database 26ai Free** を前提にしています。まず [Getting Started](./getting-started) で SQLcl とサンプルスキーマを用意してください。  
+このサイトのチュートリアルは，上から順に読む必要はなく，ご興味のある各機能から試すことが可能です。  
 
-## このサイトがカバーする保護の範囲
+
+## 認証 — 誰がログインできるか
+
+DB に接続できる主体を制御し，なりすましや不正ログインのリスクを下げます。  
+ローカルユーザーの認証強化（MFA）に加え，OCI IAM や Microsoft Entra ID などの外部 IdP と連携し，ユーザー管理を一元化する方式を扱います。
 
 <CardGrid>
-  <Card title="保存データ（Data at Rest）" icon="seti:lock">
-    ディスク上のデータファイル・バックアップを暗号化し、媒体盗難・流出時のリスクを低減します。
-
-    → **TDE**
-  </Card>
-  <Card title="転送データ（Data in Transit）" icon="right-arrow">
-    クライアント〜DB間の通信を暗号化し、ネットワーク上の盗聴・改ざんを防ぎます。
-
-    → **NNE / TLS（TCPS）**
-  </Card>
-  <Card title="利用時データ（Data in Use）" icon="list-format">
-    クエリ結果を動的にマスキング・フィルタリングし、権限のないユーザーへの情報漏えいを防ぎます。
-
-    → **Data Redaction / VPD / OLS / DDS**
-  </Card>
-  <Card title="認証・認可" icon="approve-check-circle">
-    誰がDBにアクセスできるか・何を操作できるかを制御し、なりすましや不正操作を防ぎます。
-
-    → **IAM / MFA / DB Vault / SQL Firewall**
-  </Card>
+  <LinkCard title="OCI IAM DBパスワード" description="OCI IAM にて設定したユーザーとパスワードで Database にログインします。" href="./authentication/oci-iam-dbcredential/" />
+  <LinkCard title="OCI IAM DBトークン" description="OCI IAM にて認証の後，短時間で失効する IAM トークンでログインすることで，DB 固有のパスワードをなくします。" href="./authentication/oci-iam-dbtoken/" />
+  <LinkCard title="MS Entra ID 認証" description="Microsoft Entra ID のユーザー／ロールと連携し，Database にログインします。" href="./authentication/entraid-dbtoken/" />
+  <LinkCard title="多要素認証（MFA）" description="パスワードに加えて第二の認証要素を要求し，Database ログインを強化します。" href="./authentication/password-mfa/" />
 </CardGrid>
 
----
+## アクセス制御 — 何が見え，何を操作できるか
 
-## 暗号化・マスキング
-
-ディスク上のデータと通信経路を保護し、漏えい・盗聴リスクを低減します。
-
-<LinkCard
-  title="透過的データ暗号化（TDE）"
-  description="データファイルを暗号化し、ディスク上のデータ漏えいリスクを下げます。クエリに対しては透過的に復号されるため、利用側の改修を最小化できます。"
-  href="./encryption/tde/"
-/>
-<LinkCard
-  title="通信暗号化"
-  description="クライアントとDB間の通信を暗号化し、盗聴リスクを低減します。NNE（Oracle Net）と TLS（TCPS）の2方式を扱います。"
-  href="./encryption/network/"
-/>
-<LinkCard
-  title="Data Redaction"
-  description="クエリ結果に対して動的にマスキングを行い、機微情報の表示を抑止します。データ自体を書き換えず、参照時の見せ方だけを制御できる点が特徴です。"
-  href="./masking/data-redaction/"
-/>
-
-## アクセス制御
-
-DBへのアクセスや操作を制限し、不正利用・内部脅威を抑止します。
-
-<LinkCard
-  title="Virtual Private Database"
-  description="行・列レベルでアクセス制御を行い、同じ表でもユーザーごとに見えるデータを変えます。アプリケーションのSQLを変えずに、DB側のポリシーで条件を付与できます。"
-  href="./access-control/virtual-private-database/"
-/>
-<LinkCard
-  title="Database Vault"
-  description="職務分離のための制御を追加し、強力な権限ユーザーの操作も制限できます。保護領域や操作ルールを定義し、運用上の不正や誤操作のリスクを下げます。"
-  href="./access-control/database-vault/"
-/>
-<LinkCard
-  title="SQL Firewall"
-  description="許可されたSQLの特性を基に、逸脱したSQLを検知・遮断する仕組みです。予期しないSQL実行による被害を抑止するための追加防御として使えます。"
-  href="./access-control/sql-firewall/"
-/>
-<LinkCard
-  title="Oracle Label Security"
-  description="ラベル（分類）に基づいてアクセス制御を行い、データの取り扱い基準を一貫させます。ユーザーのラベルとデータのラベルの関係で、参照・更新可否を判定します。"
-  href="./access-control/oracle-label-security/"
-/>
-<LinkCard
-  title="Deep Data Security"
-  description="Oracle Database 26ai の新機能。エンドユーザーのコンテキストをベースに行・列レベルのアクセス制御を DB 層で実現します。AI エージェントのようなアドホックなクエリへのデータ保護にも対応します。"
-  href="./access-control/deep-data-security/"
-/>
-
-## 認証
-
-DBへのログインを強化し、なりすましや不正ログインのリスクを下げます。
+正規のログイン後に，行・列・操作の単位でアクセスを絞ります。  
+利用時のデータ（Data in Use）を守る層で，行・列レベルの絞り込み（VPD / OLS / Deep Data Security），特権ユーザーの抑止と職務分離（Database Vault），想定外の SQL の遮断（SQL Firewall）が含まれます。
 
 <CardGrid>
-  <LinkCard
-    title="IAM DBパスワード"
-    description="OCI IAM のユーザーを使ってDBへログインする方式です。IAM側のユーザー/グループ管理と、DB側の権限付与を連携することができます。"
-    href="./authentication/oci-iam-dbcredential/"
-  />
-  <LinkCard
-    title="IAM DBトークン"
-    description="OCI IAM が発行する、短時間で失効するトークンを用いてDBへログインする方式です。長期的に固定の秘密情報を配布・保持する運用を減らせます。"
-    href="./authentication/oci-iam-dbtoken/"
-  />
-  <LinkCard
-    title="MS Entra ID 認証"
-    description="Microsoft Entra ID のユーザーを使用してDBにログインする方式です。Entra ID 側のユーザーやロールと連携し、一元化されたユーザーおよび認可管理を行うことができます。"
-    href="./authentication/entraid-dbtoken/"
-  />
-  <LinkCard
-    title="多要素認証（MFA）"
-    description="パスワードに加えて第二の認証要素を要求し、ログインを強化します。パスワード漏えい時の不正ログインリスクを低減できます。"
-    href="./authentication/password-mfa/"
-  />
+  <LinkCard title="Virtual Private Database" description="Database 側で暗黙的に制御を行うことで，アプリの SQL を変えないままに行・列単位でユーザーごとに見えるデータを変えます。" href="./access-control/virtual-private-database/" />
+  <LinkCard title="Database Vault" description="DBA などの特権ユーザーの操作も制限する強力なアクセス権限の分離を強制します。" href="./access-control/database-vault/" />
+  <LinkCard title="SQL Firewall" description="許可済み SQL の特性から逸脱した SQL を検知・遮断し，SQLインジェクションを防止します。" href="./access-control/sql-firewall/" />
+  <LinkCard title="Oracle Label Security" description="データとユーザーに付けたラベルの関係で，参照・更新の可否を判定します。" href="./access-control/oracle-label-security/" />
+  <LinkCard title="Deep Data Security" description="26ai 新機能。エンドユーザーのコンテキストで行・列制御を DB 層に実装し，AI エージェントのアドホックなクエリにもアクセス制御を対応させます。" href="./access-control/deep-data-security/" />
+</CardGrid>
+
+## 暗号化・マスキング — データそのものを読めなくする
+
+データを暗号化またはマスクし，経路や媒体を奪われても中身を読めなくします。  
+保存データ（Data at Rest）は TDE，通信経路（Data in Transit）は NNE / TLS，クエリ結果は Data Redaction が担当します。
+
+<CardGrid>
+  <LinkCard title="透過的データ暗号化（TDE）" description="データファイルとバックアップを暗号化します。クエリに対しては透過的に復号されます。" href="./encryption/tde/" />
+  <LinkCard title="通信暗号化" description="クライアント- DB 間の通信を暗号化。NNE（Oracle Net）と TLS（TCPS）の2方式を扱います。" href="./encryption/network/" />
+  <LinkCard title="Data Redaction" description="クエリ結果を動的にマスクします。データ自体は書き換えず，参照時の見せ方だけを制御します。" href="./masking/data-redaction/" />
 </CardGrid>
 
 <Aside type="note" title="準備中：Oracle Data Safe">
-  監査・セキュリティ評価・機微データ検出などを統合的に扱うクラウドサービスです。複数DBのセキュリティ状況を一元的に可視化できます。
+  監査・セキュリティ評価・機微データ検出などを統合的に扱うクラウドサービス。複数 DB のセキュリティ状況を一元的に可視化できます。
 </Aside>

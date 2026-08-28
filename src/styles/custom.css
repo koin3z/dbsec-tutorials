@@ -1,8 +1,106 @@
-@media (min-width: 50rem) {
-  html[data-has-hero] .hero {
-    grid-template-columns: 9fr 3fr !important;
-  }
+/* =========================================================
+   1. タイポグラフィ全体のスケール
+   Starlight の変数を上書きし、見出し・本文をひと回り小さく
+   ========================================================= */
+:root {
+  --sl-text-h1: 2rem;         /* 42px -> 32px */
+  --sl-text-h2: 1.5rem;       /* 29px -> 24px */
+  --sl-text-h3: 1.25rem;      /* 23px -> 20px */
+  --sl-text-h4: 1.0625rem;    /* -> 17px */
+  --sl-text-body: 0.9375rem;  /* 16px -> 15px */
+  --sl-text-body-sm: 0.875rem;
+  --sl-text-code: 0.875rem;
 }
+
+/* =========================================================
+   2. 左サイドバーを控えめに
+   ========================================================= */
+:root {
+  --sl-sidebar-width: 17.5rem;           /* 300px -> 280px */
+  --sl-color-bg-sidebar: var(--sl-color-bg); /* 本文と同じ背景にして「板」感をなくす */
+}
+
+.sidebar-pane {
+  border-inline-end: 1px solid var(--sl-color-hairline-light);
+}
+.sidebar-content {
+  padding: 0.75rem 0.75rem 0;
+}
+
+/* ネストのインデントを詰める（階層が深いので折り返しを抑える） */
+#starlight__sidebar ul {
+  --sl-sidebar-item-padding-inline: 0.375rem;
+}
+
+/* ---- 展開グループ（クリック＝開閉）----
+   キャレットをラベルの左に移し、ファイルツリー同様の「開閉」記号にする */
+#starlight__sidebar summary {
+  font-size: 0.8125rem;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  border-radius: 0.25rem;
+}
+#starlight__sidebar summary .caret {
+  order: -1;                       /* ラベルの左へ */
+  font-size: 1rem;                 /* 20px -> 16px */
+  color: var(--sl-color-gray-4);
+}
+#starlight__sidebar .large {
+  font-size: 0.8125rem;  /* 16px -> 13px */
+  font-weight: 600;
+  color: var(--sl-color-gray-3);
+}
+#starlight__sidebar summary:hover {
+  background-color: var(--sl-color-gray-6);
+}
+#starlight__sidebar summary:hover .large,
+#starlight__sidebar summary:hover .caret {
+  color: var(--sl-color-white);
+}
+
+/* ---- ページリンク（クリック＝遷移）----
+   キャレット幅ぶん字下げしてグループ名と頭を揃え、ホバーで下線を出す */
+#starlight__sidebar a {
+  font-size: 0.8125rem;  /* 14px -> 13px */
+  color: var(--sl-color-gray-3);
+  padding-block: 0.2rem;
+  padding-inline-start: calc(var(--sl-sidebar-item-padding-inline) + 1.25rem);
+}
+#starlight__sidebar a:hover,
+#starlight__sidebar a:focus-visible {
+  color: var(--sl-color-white);
+  background-color: var(--sl-color-gray-6);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+#starlight__sidebar a[aria-current='page'],
+#starlight__sidebar a[aria-current='page']:hover {
+  color: var(--sl-color-text-invert);
+}
+
+/* =========================================================
+   3. 右サイドバー（On this page）も控えめに
+   ========================================================= */
+.right-sidebar h2 {
+  font-size: 0.8125rem;
+  color: var(--sl-color-gray-3);
+}
+starlight-toc a {
+  font-size: 0.8125rem;
+  color: var(--sl-color-gray-3);
+}
+starlight-toc a:hover {
+  color: var(--sl-color-white);
+}
+
+/* =========================================================
+   4. 本文エリア
+   ========================================================= */
+/* Starlight は本文サイズを html から継承するため、明示的に指定する */
+.sl-markdown-content {
+  font-size: var(--sl-text-body);
+}
+
 .content-panel:where(.astro-7nkwcw3z) {
   padding: 2.5rem;
 }
@@ -11,17 +109,14 @@
   padding-block: 1rem;
 }
 
-.sl-markdown-content h1 {
-  font-size: 2.1rem;
+/* =========================================================
+   5. トップページ（splash）専用の調整
+   ========================================================= */
+@media (min-width: 50rem) {
+  html[data-has-hero] .hero {
+    grid-template-columns: 9fr 3fr !important;
+  }
 }
-.sl-markdown-content h2 {
-  font-size: 1.8rem;
-}
-.sl-markdown-content h3 {
-  font-size: 1.5rem;
-}
-
-/* --- トップページ（splash）専用の調整 --- */
 html[data-has-hero] .hero {
   padding-block: 1rem 1.75rem;
 }
@@ -45,7 +140,6 @@ html[data-has-hero] .hero .sl-link-button {
   padding: 0.5rem 1.125rem;
 }
 html[data-has-hero] .sl-markdown-content h2 {
-  font-size: 1.5rem;   /* セクション見出し 1.8rem -> 1.5rem */
   margin-top: 2.5rem;
 }
 html[data-has-hero] .sl-markdown-content h2:first-of-type {

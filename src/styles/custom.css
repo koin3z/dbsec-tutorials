@@ -13,6 +13,38 @@
 }
 
 /* =========================================================
+   1-b. Light テーマの眩しさを抑える
+   Starlight の light は背景が純白（#fff）なので、わずかに沈めた
+   オフホワイトに置き換える。あわせて罫線とコード背景を、
+   新しい背景から見えるコントラストに調整する。
+   ========================================================= */
+:root[data-theme='light'],
+[data-theme='light'] ::backdrop {
+  --sl-color-bg: hsl(224, 25%, 96%);            /* #fff -> オフホワイト */
+  --sl-color-bg-nav: hsl(224, 25%, 93%);        /* ヘッダーを一段沈める */
+  --sl-color-bg-inline-code: hsl(224, 20%, 90%);
+  --sl-color-hairline-light: hsl(224, 14%, 87%);
+  --sl-color-hairline: hsl(224, 14%, 87%);
+  --sl-color-hairline-shade: hsl(224, 16%, 89%);
+}
+
+/* =========================================================
+   1-c. ナビ（左右サイドバー）の文字色
+   本文より一段落とすが、light では灰色に見えて読みづらいので
+   テーマごとに濃さを変える。
+   ========================================================= */
+:root {
+  --site-muted-text: var(--sl-color-gray-3);   /* dark: 明るい灰 */
+  --site-nav-caret: hsl(224, 7%, 48%);       /* UI 記号として 3:1 以上を確保 */
+  --site-rule: hsl(224, 10%, 28%);           /* h2 の区切り罫 */
+}
+:root[data-theme='light'] {
+  --site-muted-text: hsl(224, 12%, 30%);       /* light: しっかり濃いグレー */
+  --site-nav-caret: hsl(224, 10%, 45%);
+  --site-rule: hsl(224, 15%, 82%);
+}
+
+/* =========================================================
    2. 左サイドバーを控えめに
    ========================================================= */
 :root {
@@ -43,12 +75,12 @@
 #starlight__sidebar summary .caret {
   order: -1;                       /* ラベルの左へ */
   font-size: 1rem;                 /* 20px -> 16px */
-  color: var(--sl-color-gray-4);
+  color: var(--site-nav-caret);
 }
 #starlight__sidebar .large {
   font-size: 0.8125rem;  /* 16px -> 13px */
   font-weight: 600;
-  color: var(--sl-color-gray-3);
+  color: var(--site-muted-text);
 }
 #starlight__sidebar summary:hover {
   background-color: var(--sl-color-gray-6);
@@ -62,7 +94,7 @@
    キャレット幅ぶん字下げしてグループ名と頭を揃え、ホバーで下線を出す */
 #starlight__sidebar a {
   font-size: 0.8125rem;  /* 14px -> 13px */
-  color: var(--sl-color-gray-3);
+  color: var(--site-muted-text);
   padding-block: 0.2rem;
   padding-inline-start: calc(var(--sl-sidebar-item-padding-inline) + 1.25rem);
 }
@@ -83,14 +115,20 @@
    ========================================================= */
 .right-sidebar h2 {
   font-size: 0.8125rem;
-  color: var(--sl-color-gray-3);
+  color: var(--site-muted-text);
 }
 starlight-toc a {
   font-size: 0.8125rem;
-  color: var(--sl-color-gray-3);
+  color: var(--site-muted-text);
 }
 starlight-toc a:hover {
   color: var(--sl-color-white);
+}
+
+/* カードの説明文も同じ濃さに揃える（既定は gray-3） */
+.sl-link-card .description,
+.card .body {
+  color: var(--site-muted-text);
 }
 
 /* =========================================================
@@ -99,6 +137,17 @@ starlight-toc a:hover {
 /* Starlight は本文サイズを html から継承するため、明示的に指定する */
 .sl-markdown-content {
   font-size: var(--sl-text-body);
+}
+
+/* h2 に横罫を入れて章の切れ目を明示する。
+   Starlight は見出しを .sl-heading-wrapper で包み、h2 自体を display:inline
+   にするため、罫線と上下の余白は wrapper 側に指定する。
+   （> h2 はラッパーが無い場合のフォールバック） */
+.sl-markdown-content .sl-heading-wrapper.level-h2,
+.sl-markdown-content > h2 {
+  margin-top: 3rem;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid var(--site-rule);
 }
 
 .content-panel:where(.astro-7nkwcw3z) {
@@ -139,9 +188,9 @@ html[data-has-hero] .hero .sl-link-button {
   font-size: 0.9375rem;
   padding: 0.5rem 1.125rem;
 }
-html[data-has-hero] .sl-markdown-content h2 {
+html[data-has-hero] .sl-markdown-content .sl-heading-wrapper.level-h2 {
   margin-top: 2.5rem;
 }
-html[data-has-hero] .sl-markdown-content h2:first-of-type {
+html[data-has-hero] .sl-markdown-content .sl-heading-wrapper.level-h2:first-of-type {
   margin-top: 1.5rem;
 }

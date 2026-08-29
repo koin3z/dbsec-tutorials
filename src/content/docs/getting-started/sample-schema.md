@@ -32,7 +32,7 @@ unzip v23.3.zip
 
 HRスキーマを作成するために、まずDBに接続します。
 
-```sql
+```text
 -- PDBにSYSユーザーで接続
 [oracle@db-tut ~]$ sql sys/<password>@localhost:1521/freepdb1 as sysdba
 
@@ -51,7 +51,7 @@ USER is "SYS"
 ```
 
 インストールが開始され、パスワードの入力を求められますので、HRユーザーのパスワードを入力します。
-```sql "******************" "<そのままEnter>" "<YESまたはYを入力>"
+```text "******************" "<そのままEnter>" "<YESまたはYを入力>"
 SQL> @/home/oracle/db-sample-schemas-23.3/human_resources/hr_install.sql
 
 Thank you for installing the Oracle Human Resources Sample Schema.
@@ -113,7 +113,7 @@ select table_name from all_tables where owner = 'HR';
 
 結果は以下のようになります。
 
-```sql
+```text
 SQL> select table_name from all_tables where owner = 'HR';
 
 TABLE_NAME

@@ -17,7 +17,7 @@ sidebar:
 
 以下のSQLを使用して、HRスキーマ内に作成された関数を確認します。
 
-```sql
+```text
 SQL> select object_name from all_objects where owner = 'HR' and object_type = 'FUNCTION';
 
 OBJECT_NAME
@@ -28,7 +28,7 @@ GET_MASKING_SALARY_COL
 
 確認した関数を削除します。
 
-```sql
+```text
 SQL> drop function hr.get_sales_predicate;
 SQL> drop function hr.get_masking_salary_col;
 ```
@@ -36,7 +36,7 @@ SQL> drop function hr.get_masking_salary_col;
 再度関数を確認し、すべて削除されたことを確認します
 
 
-```sql
+```text
 SQL> select object_name from all_objects where owner = 'HR' and object_type = 'FUNCTION';
 
 no rows selected
@@ -46,7 +46,7 @@ no rows selected
 
 現在、作成されているポリシーを確認します。
 
-```sql
+```text
 SQL> select policy_name from all_policies where object_owner = 'HR';
 
 POLICY_NAME
@@ -81,7 +81,7 @@ END;
 
 ポリシーが削除されたことを確認します。
 
-```sql
+```text
 SQL> select policy_name from all_policies where object_owner = 'HR';
 
 no rows selected

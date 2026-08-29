@@ -21,7 +21,7 @@ import { Aside } from '@astrojs/starlight/components';
 
 まず、Walletを使用してログインします。
 
-```
+```bash
 sql -cloudconfig <ダウンロードしたWalletへのパス> admin/<Password>@<ConnectString>
 ```
 
@@ -73,7 +73,7 @@ IAM ユーザーによる接続を許可するために、Database の外部認�
 
 ADBの場合、 ``DBMS_CLOUD_ADMIN`` パッケージを使用してOCI IAM 認証を有効化します。
 
-```
+```sql
 BEGIN
   DBMS_CLOUD_ADMIN.ENABLE_EXTERNAL_AUTHENTICATION( 
     type => 'OCI_IAM' );
@@ -85,7 +85,7 @@ END;
 
 非ADBの場合は、 `IDENTITY_PROVIDER_TYPE` パラメータを設定します。
 
-```
+```sql
 ALTER SYSTEM SET IDENTITY_PROVIDER_TYPE=OCI_IAM SCOPE=BOTH;
 ```
 
@@ -93,14 +93,14 @@ ALTER SYSTEM SET IDENTITY_PROVIDER_TYPE=OCI_IAM SCOPE=BOTH;
 
 設定が正しく反映されたか、状態を確認します。
 
-```
+```sql
 SELECT NAME, VALUE FROM V$PARAMETER WHERE NAME='identity_provider_type';
 
 -- または以下のコマンドでも可
 SHOW PARAMETER identity_provider_type;
 ```
 
-```sql
+```text
 SQL> select name, value from v$parameter where name='identity_provider_type';
 
 NAME                   VALUE   
@@ -120,7 +120,7 @@ OCI IAMユーザーがDatabaseに接続する際のマッピング先となる�
 
 管理者権限を持つユーザーでDBに接続し、グローバルユーザーを作成します。
 
-```
+```sql
 create user DBUSER_IAM identified globally as 'IAM_GROUP_NAME=domain-db/iamgroup-connect';
 ```
 
@@ -132,7 +132,7 @@ create user DBUSER_IAM identified globally as 'IAM_GROUP_NAME=domain-db/iamgroup
 これで、 `iamgroup-connect` グループに属するユーザーは、DBでは `DBUSER_IAM` ユーザーとして扱われることになります。
 また、接続するための権限を `DBUSER_IAM` ユーザー自体に直接付与しておきます。
 
-```
+```sql
 grant create session to DBUSER_IAM;
 ```
 
@@ -146,7 +146,7 @@ grant create session to DBUSER_IAM;
 
 `GLROLE_HR_ADMIN` ロールには、HRスキーマのすべての管理権限を付与します。
 
-```
+```sql
 create role GLROLE_HR_ADMIN identified globally as 'IAM_GROUP_NAME=domain-db/iamgroup-hr-admin';
 
 grant all privileges on schema hr to GLROLE_HR_ADMIN;
@@ -154,7 +154,7 @@ grant all privileges on schema hr to GLROLE_HR_ADMIN;
 
 ``GLROLE_HR_DEV`` ロールへは参照権限のみ付与します。
 
-```
+```sql
 create role GLROLE_HR_DEV identified globally as 'IAM_GROUP_NAME=domain-db/iamgroup-hr-dev';
 
 grant select on hr.departments to GLROLE_HR_DEV;

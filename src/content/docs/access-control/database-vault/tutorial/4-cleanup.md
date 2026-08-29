@@ -63,7 +63,7 @@ END;
 
 完全に削除されたことを確認します。
 
-```sql title="C##DVOWNERユーザー"
+```text title="C##DVOWNERユーザー"
 SQL> select realm_name, grantee from DVSYS.DBA_DV_REALM_AUTH where realm_name = 'Realm for demo';
 
 no rows selected
@@ -96,7 +96,7 @@ END;
 ```
 オブジェクトがレルムから削除されたことを確認します。
 
-```sql title="C##DVOWNERユーザー"
+```text title="C##DVOWNERユーザー"
 SQL> select REALM_NAME, OWNER, OBJECT_NAME, OBJECT_TYPE from DVSYS.DBA_DV_REALM_OBJECT where realm_name = 'Realm for demo';
 
 no rows selected
@@ -123,7 +123,7 @@ EXEC DBMS_MACADM.DELETE_RULE_SET('Ruleset for APP');
 
 ## Database Vaultの無効化
 
-```sql title="C##DVOWNERユーザー"
+```text title="C##DVOWNERユーザー"
 EXEC DBMS_MACADM.DISABLE_DV;
 
 -- 無効化されたことを確認する
@@ -145,7 +145,7 @@ ALTER PLUGGABLE DATABASE freepdb1 OPEN;
 
 SYSユーザーでDBユーザーが作成できるようになり、Database Vaultが無効化されたことが分かります。
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 show user con_name
 -- USER is "SYS"
 -- CON_NAME: FREEPDB1

@@ -17,7 +17,7 @@ sidebar:
 
 Database Vaultが有効化された環境では、SYSユーザーはユーザー作成や特定オブジェクトへのアクセスができません。
 
-```sql
+```text
 -- SYSユーザーでユーザー作成を試みる
 SQL> CREATE USER test;
 
@@ -58,7 +58,7 @@ https://docs.oracle.com/error-help/db/ora-01031/
 
 一方、レルム認可を行ったHRユーザーまたはSALES_APPユーザーからは、SYSユーザーではアクセスできなかったREGIONS表にアクセスできることを確認します。
 
-```sql
+```text
 sql hr/Welcome1#Welcome1#@localhost:1521/freepdb1
 
 SQL> sho user
@@ -74,7 +74,7 @@ ____________ ______________
           50 Africa
 ```
 
-```sql
+```text
 [opc@db-tut ~]$ sql sales_app/Welcome1#Welcome1#@localhost:1521/freepdb1
 
 SQL> sho user
@@ -95,7 +95,7 @@ ____________ ______________
 
 APPユーザーにはIPアドレスによる制限付きで認可が付与されています。 この設定に基づき、許可されたIPアドレスからのみアクセス可能であることを確認します。
 
-```sql
+```text
 -- 許可されたIPアドレスからアクセス
 ➜  ~ hostname -I
 192.168.0.78
@@ -120,7 +120,7 @@ _________ ___________
        40 Oceania
        50 Africa
 ```
-```sql
+```text
 -- 許可されていないIPアドレスからアクセス
 [opc@db-tut ~]$ hostname -I
 10.0.0.209

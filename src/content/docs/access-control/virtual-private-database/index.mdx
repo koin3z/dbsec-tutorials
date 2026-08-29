@@ -105,6 +105,67 @@ HR スキーマの `EMPLOYEES` 表を対象に、`SALES_APP` ユーザーへの�
 
 </Steps>
 
+## 関連ブログと手順の差分
+
+このサイトのチュートリアルをベースに、Oracle Blogs で解説記事を公開しています。記事では手順を再構成し、説明の追加・変更を行っているため、主な差分を以下にまとめます。
+
+- [Virtual Private Database（VPD）で行制御を構成してみよう【#14】](https://blogs.oracle.com/oracle4engineer/database-security-oracle-vpd-tutorial-jp)
+- [Virtual Private Database（VPD）で列制御と監査を確認してみよう【#15】](https://blogs.oracle.com/oracle4engineer/database-security-oracle-vpd-column-control-audit-tutorial-jp)
+
+### 実行環境・実行ユーザー
+
+- ブログは **Oracle AI Database 26ai FREE** / PDB `FREEPDB1` を前提とし、ポリシー関数とポリシーの作成・削除をすべて **`SYS`（AS SYSDBA）** で実行します。このサイトの手順は実行ユーザーを明示していません（関数は `HR` スキーマに作成）。
+- ブログでは `SALES_APP` の作成と権限付与を明示しています。表単位の付与で、`SELECT ANY TABLE` は使いません。
+
+  ```sql
+  create user sales_app identified by "<password>";
+  grant create session to sales_app;
+  grant select on hr.employees to sales_app;
+  ```
+
+### ポリシー追加時の `statement_types`
+
+- ブログは `DBMS_RLS.ADD_POLICY` に **`statement_types => 'SELECT'`** を明示し、ポリシーを SELECT のみに限定します（DML への予期しない影響を避けるため）。このサイトの手順は `statement_types` を省略しており、既定の `SELECT,INSERT,UPDATE,DELETE` が対象になります（`ALL_POLICIES` の `UPD` / `DEL` が `YES` になる）。
+- `DBMS_RLS.ADD_POLICY` / `DROP_POLICY` は処理の前後で暗黙的にコミットします。未コミットの変更があるセッションでは実行しないでください。
+
+### 列レベル VPD の確認
+
+- このサイトは「既定（条件を満たさない行を除外）」→「`DBMS_RLS.ALL_ROWS`（対象列を NULL 表示）」の順に両方の挙動を確認します。ブログは最初から `DBMS_RLS.ALL_ROWS` のみを使用します。
+- ブログは列オプションの確認に **`DBA_SEC_RELEVANT_COLS`**（`SEC_REL_COLUMN` / `COLUMN_OPTION` が `ALL_ROWS`）を使用します。このサイトは `ALL_POLICIES` のみ。
+- ブログでは行制御に業務条件を重ねる確認（`WHERE salary >= 10000` と VPD 述語の AND 結合）も追加しています。
+
+### 統合監査で VPD 述語を確認（#15 で追加、このサイトには無い内容）
+
+- `HR.EMPLOYEES` への SELECT を記録する統合監査ポリシーを作成し、`SALES_APP` に対して有効化します。
+
+  ```sql
+  CREATE AUDIT POLICY vpd_employees_audit_policy
+    ACTIONS SELECT ON HR.EMPLOYEES;
+  AUDIT POLICY vpd_employees_audit_policy BY SALES_APP;
+  ```
+
+- `UNIFIED_AUDIT_TRAIL` の **`RLS_INFO`** 列に、適用された VPD ポリシーごとに `POLICY_TYPE` / `POLICY_SCHEMA` / `POLICY_NAME` / `PREDICATE` が連結記録されます（複数ポリシーが効く場合は複数分）。CLOB のため `SET LONG 100000` / `SET LONGCHUNKSIZE 100000` を先に実行します。
+- `DBMS_AUDIT_UTIL.DECODE_RLS_INFO_ATRAIL_UNI` を使うと、`RLS_INFO` をポリシーごとの行（`RLS_PREDICATE` / `RLS_POLICY_NAME` など）に展開できます。
+- ポイント: **`SQL_TEXT` 自体は書き換わらず**、VPD が適用した述語は別項目として記録されます。
+- 後片付けは `NOAUDIT POLICY ... BY SALES_APP;` → `DROP AUDIT POLICY ...` の順。
+
+### 後片付けの順序
+
+- ブログは **ポリシー削除 → 関数削除** の順です（このサイトの手順 3 は関数削除 → ポリシー削除の順）。どちらでも削除自体は可能ですが、関数を先に削除するとポリシーが有効なまま残り、対象表への SELECT がポリシー関数エラーになります。
+- ハンズオン専用に `SALES_APP` を作成した場合は `DROP USER SALES_APP CASCADE;` も実施します。
+
+### クライアント識別子とアプリケーション・コンテキスト（#14 の補足）
+
+接続プールで同一 DB ユーザーを共有する構成では `SESSION_USER` で利用者を区別できないため、次のいずれかの値を `SYS_CONTEXT` で参照してポリシー関数の述語を切り替えます。
+
+| 項目 | クライアント識別子 | アプリケーション・コンテキスト |
+|---|---|---|
+| 保持する情報 | 組み込み `USERENV` 名前空間の単一の識別値 | 独自の名前空間に複数の属性・値 |
+| 設定方法 | `DBMS_SESSION.SET_IDENTIFIER` / OCI・クライアントドライバ | `CREATE CONTEXT` で名前空間と PL/SQL パッケージを関連付け、そのパッケージから `DBMS_SESSION.SET_CONTEXT` |
+| 参照方法 | `SYS_CONTEXT('USERENV','CLIENT_IDENTIFIER')` | `SYS_CONTEXT('<名前空間>','<属性名>')` |
+
+接続プールのセッションを別の利用者へ再利用する際は、前の利用者の値をクリアまたは再設定する必要があります。このサイトの [CLIENT_IDENTIFIER を使ったアクセス制御](./client-identifier) は、アプリケーション・コンテキストを作らず共通 `APP` ユーザーに `VIEWER` / `EDITOR` / `ADMIN` のクライアント識別子を設定する例です。
+
 ## 補足ページ
 
 <CardGrid>

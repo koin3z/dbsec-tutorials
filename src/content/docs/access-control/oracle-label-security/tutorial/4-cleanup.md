@@ -108,7 +108,7 @@ END;
 
 ## 表の削除
 OLSのために作成した表 HR.JOB_HISTORY_4OLS を削除します。
-```
+```sql
 drop table HR.JOB_HISTORY_4OLS;
 commit;
 ```
@@ -122,7 +122,7 @@ EXEC LBACSYS.OLS_ENFORCEMENT.DISABLE_OLS;
 ```
 状態を確認します
 
-```sql
+```text
 SQL> SELECT * FROM DBA_OLS_STATUS;
 
 NAME                    STATUS    DESCRIPTION
@@ -134,7 +134,7 @@ OLS_ENABLE_STATUS       FALSE     Determines if OLS is enabled
 FALSEとなり、無効化されたことが分かります。
 
 設定を完全に反映させるためにPDBの再起動を行います。
-```sql
+```text
 SQL> alter pluggable database freepdb1 close immediate;
 SQL> alter pluggable database freepdb1 open;
 ```

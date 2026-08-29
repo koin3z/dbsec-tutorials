@@ -49,12 +49,12 @@ Database 側では、Entra ID のアプリロールに対応するユーザー�
 ここでは、`clientCredentialsConnect` というアプリロールに対応付ける例を示します。
 
 ユーザー作成には、以下のように定義します。
-```
+```sql
 create user <DBユーザー> identified globally as 'AZURE_ROLE=<Entra ID ロール名>';
 ```
 
 ロール作成には、以下のように定義します。
-```
+```sql
 create role <DBロール> identified globally as 'AZURE_ROLE=<Entra ID ロール名>';
 grant create session to <DBロール>;
 ```
@@ -64,7 +64,7 @@ grant create session to <DBロール>;
 Entra ID のトークンエンドポイントに対して、トークンリクエストを行うのみでトークンを取得できます。
 
 例えば、curl を使用した例としては以下のようになります。
-```text "client_credentials"
+```bash "client_credentials"
 curl \
   --location 'https://login.microsoftonline.com/xxxxxxxxxxxx/oauth2/v2.0/token' \
   --header 'Content-Type: application/x-www-form-urlencoded' \
@@ -99,7 +99,7 @@ ENTRAID_APP_ROLE
 ```
 
 接続コンテクストを確認します。
-```
+```sql
 SELECT
   SYS_CONTEXT('USERENV','CURRENT_SCHEMA')         AS current_schema,
   SYS_CONTEXT('USERENV','CURRENT_USER')           AS current_user,

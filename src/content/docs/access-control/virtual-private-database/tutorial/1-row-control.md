@@ -26,7 +26,7 @@ sidebar:
 
 VPDポリシーの対象列としては、外部キーであるJOB_IDを使用します。
 
-```sql
+```text
 SQL> select distinct job_id from hr.employees;
 
 JOB_ID
@@ -55,7 +55,7 @@ ST_MAN
 ```
 
 まずは関数を作成します。
-```
+```sql
 CREATE OR REPLACE FUNCTION hr.get_sales_predicate( 
   p_schema IN VARCHAR2,
   p_table  IN VARCHAR2
@@ -81,7 +81,7 @@ END get_sales_predicate;
 
 作成したVPD関数を指定してVPDポリシーを作成していきます。 実行するADD_POLICYプロシージャのパラメータについての詳細は[こちら](https://docs.oracle.com/cd/G47991_01/arpls/DBMS_RLS.html)をご確認ください。
 
-```
+```sql
 BEGIN
   DBMS_RLS.ADD_POLICY (
     object_schema   => 'HR',
@@ -96,7 +96,7 @@ END;
 
 作成したVPDポリシーは `ALL_POLICIES` ディクショナリビューから確認できます。
 
-```sql
+```text
 SQL> select object_owner, object_name, policy_name, function, sel, ins, upd, del, idx, policy_type, common from all_policies where object_owner  = 'HR';
 
 OBJECT_OWNER    OBJECT_NAME    POLICY_NAME             FUNCTION               SEL    INS    UPD    DEL    IDX    POLICY_TYPE    COMMON
@@ -123,7 +123,7 @@ HR              EMPLOYEES      EMPLOYEES_VPD_POLICY    GET_SALES_PREDICATE    YE
 
 HRユーザーで対象の表を参照し、作成したVPDポリシーが正しく機能しているかを確認します。
 
-```sql title="HRユーザー"
+```text title="HRユーザー"
 SQL> sho user
 USER is "HR"
 SQL> select employee_id, first_name, salary, job_id from hr.employees;
@@ -151,7 +151,7 @@ HRユーザーでアクセスすると、VPD関数が'1=1'を返すため、全�
 
 SALES_APPユーザーで同様のSQL文を実行し、VPDが動作していることを確認します。
 
-```sql title="SALES_APPユーザー"
+```text title="SALES_APPユーザー"
 
 SQL> sho user
 USER is "SALES_APP"

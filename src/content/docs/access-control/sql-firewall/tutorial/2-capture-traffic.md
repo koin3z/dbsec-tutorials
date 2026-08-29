@@ -17,7 +17,7 @@ sidebar:
 
 SALES_APPユーザーからのSQLトラフィックのキャプチャを開始します。
 
-```
+```sql
 BEGIN
   DBMS_SQL_FIREWALL.CREATE_CAPTURE (
     username         => 'SALES_APP',
@@ -32,7 +32,7 @@ END;
 
 SALES_APPユーザーに切り替えて適当な数のSQLを実行し、キャプチャをテストします。
 
-```
+```sql
 -- 以下のSQLを実行
 Select * From hr.job_history;
 select job_id from hr.job_history;
@@ -48,13 +48,13 @@ select jfiros from aaiorwae;
 
 SYSユーザーに切り替え、キャプチャを停止します。
 
-```
+```sql
 EXEC DBMS_SQL_FIREWALL.STOP_CAPTURE('SALES_APP');
 ```
 
 その後、キャプチャしたSQLを確認してみます。
 
-```sql
+```text
 SQL> set markup csv on
 SQL> SELECT USERNAME, COMMAND_TYPE, SQL_TEXT FROM DBA_SQL_FIREWALL_CAPTURE_LOGS;
 "USERNAME" ,"COMMAND_TYPE","SQL_TEXT"
@@ -73,7 +73,7 @@ SQL> SELECT USERNAME, COMMAND_TYPE, SQL_TEXT FROM DBA_SQL_FIREWALL_CAPTURE_LOGS;
 
 また、`DBA_SQL_FIREWALL_CAPTURE_LOGS`には`SQL_SIGNATURE`列があり、ユニークなシグネチャを生成されていることも確認できます。
 
-```sql
+```text
 SQL> SELECT SQL_SIGNATURE,  SQL_TEXT FROM DBA_SQL_FIREWALL_CAPTURE_LOGS;
 "SQL_SIGNATURE"                                                   ,"SQL_TEXT"
 "CE7BB58501B74B27A8E1839074BA3866D07C76F126DA7BC6C57B77DF6C55D4AC","DESCRIBE HR.JOB_HISTORY"

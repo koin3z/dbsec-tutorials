@@ -15,7 +15,7 @@ sidebar:
 
 現在の許可リストに登録されているSQLを確認します。
 
-```sql
+```text
 SQL> select ALLOWED_SQL_ID, SQL_TEXT from DBA_SQL_FIREWALL_ALLOWED_SQL;
 
 no rows selected
@@ -25,13 +25,13 @@ no rows selected
 
 キャプチャしたSQLログを使用して、SQL許可リストを作成します。
 
-```
+```sql
 EXEC DBMS_SQL_FIREWALL.GENERATE_ALLOW_LIST ('SALES_APP');
 ```
 
 再度許可リストを確認し、SQLが登録されたことを確認します。
 
-```sql
+```text
 SQL> select ALLOWED_SQL_ID, SQL_TEXT from DBA_SQL_FIREWALL_ALLOWED_SQL;
 "ALLOWED_SQL_ID","SQL_TEXT"
 1               ,"SELECT DECODE (USER,:""SYS_B_0"",XS_SYS_CONTEXT (:""SYS_B_1"",:""SYS_B_2""),USER) FROM SYS.DUAL"

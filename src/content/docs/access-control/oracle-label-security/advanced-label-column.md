@@ -18,7 +18,7 @@ sidebar:
 
 見ていただくとわかる通りですが、ラベル列は数値として管理されるため、不等号を使用した条件で絞り込みが可能です。
 
-```sql
+```text
 SQL> select JOB_ID, OLS_LABEL_DEMO from HR.JOB_HISTORY_4OLS where OLS_LABEL_DEMO >= 300;
 
 JOB_ID           OLS_LABEL_DEMO
@@ -31,7 +31,7 @@ AC_ACCOUNT                  300
 
 ラベル列を基準にORDER BYでデータをソートすることも可能です。
 
-```sql
+```text
 SQL> select JOB_ID, OLS_LABEL_DEMO from HR.JOB_HISTORY_4OLS order by OLS_LABEL_DEMO;
 
 JOB_ID           OLS_LABEL_DEMO
@@ -81,7 +81,7 @@ DEPARTMENT_ID                NUMBER(4)
 
 HIDEオプションを使用してポリシーを再適用します。
 
-```
+```sql
 BEGIN
   SA_POLICY_ADMIN.APPLY_TABLE_POLICY (
     policy_name    => 'OLS_POL_DEMO',

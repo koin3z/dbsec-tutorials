@@ -23,7 +23,7 @@ sidebar:
 
 まず、 ``iamuser-hr-admin-01`` ユーザーで接続を行ってみます。
 
-```sql
+```text
 $ sql -cloudconfig ./adb-wallet/Wallet_UQG5XBZV5LIND8ZF.zip /nolog
 
 SQL> conn "domain-db/iamuser-hr-admin-01"@uqg5xbzv5lind8zf_medium
@@ -39,7 +39,7 @@ USER is "DBUSER_IAM"
 
 所持している権限を確認し、試しに HR スキーマに TEST テーブルを作成してみます。
 
-```sql
+```text
 -- 権限を確認
 SQL> select * from SESSION_PRIVS;
 
@@ -78,7 +78,7 @@ Table HR.TEST dropped.
 
 同様に、 `iamuser-hr-dev-01` でも接続してみます。
 
-```sql
+```text
 $ sql -cloudconfig ./adb-wallet/Wallet_UQG5XBZV5LIND8ZF.zip /nolog
 
 SQL> conn "domain-db/iamuser-hr-dev-01"@uqg5xbzv5lind8zf_medium
@@ -92,7 +92,7 @@ USER is "DBUSER_IAM"
 
 admin と同様に `DBUSER_IAM` として接続されます。ここで、適用されるロールが `GLROLE_HR_DEV` になっていることを確認します。
 
-```sql
+```text
 -- 権限を確認
 SQL> select * from SESSION_PRIVS;
 

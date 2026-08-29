@@ -8,7 +8,7 @@ import { LinkButton } from '@astrojs/starlight/components';
 
 Oracle Database 26ai FREE を準備したら、そのDatabaseに接続するためのクライアントを準備します。
 26ai FREEをインストールし環境変数をセットした時点で、DBホストにはSQL\*Plusが用意されているため、以下のコマンドでも接続することができます。
-```
+```bash
 sqlplus / as sysdba
 ```
 
@@ -23,7 +23,7 @@ SQL\*Plusと比べ、tabによる保管や移動キーによるカーソルの�
 このSQLclの動作のためにはjava 11以降のバージョンが必要ですが、Oracle Linuxの場合は標準リポジトリに含まれるOracle Developer Tools内に含まれていますので、以下コマンドだけで準備ができます。
 別ホストからリモートで接続する際
 
-```
+```bash
 dnf install -y java-21-openjdk-headless sqlcl
 ```
 
@@ -51,7 +51,7 @@ SQL> exit
 ```
 
 zipを使ってインストールした場合、解凍の後 `/sqlcl/bin/sql` に実行ファイルがあります。必要に応じてパスを通してください。
-```
+```bash
 export PATH=`pwd`/sqlcl/bin:$PATH
 ```
 
@@ -67,7 +67,7 @@ Oracle Database では接続先の指定方法に３つの方法があります�
 データベースのホスト名およびポート、サービス名を指定してデータベースに接続します。
 構文は以下の通りです。
 
-```
+```sql
 CONNECT username/password@host[:port][/service_name][:server_type][/instance_name]
 ```
 
@@ -108,7 +108,7 @@ FREEPDB1
 
 ### tnsnames
 接続情報をエイリアスとして登録し、接続する際はそれを指定する方法です。接続の際に以下のように指定します。
-```
+```sql
 CONNECT username@tns_alias
 ```
 

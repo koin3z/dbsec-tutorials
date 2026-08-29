@@ -22,7 +22,7 @@ sidebar:
 
 Oracle Database Vault が有効化されている環境では、SYSユーザーでは直接ユーザーを作成できないため、 Database Vault を有効化する際に指定した、ユーザー管理用アカウント `C##ACCTMGR` を使用します。
 
-```sql
+```text
 sql c##dvacctmgr/<password>@localhost:1521/freepdb1
 
 -- 2人のユーザーを作成
@@ -36,7 +36,7 @@ SQL> grant create session to tpi_user identified by <password>;
 
 次に、DV_OWNERスキーマにTPI_BOSSがログインしているかを確認するファンクションを作成するため、SYSユーザーで権限を付与します。
 
-```sql
+```text
 -- sysユーザーに切り替え
 SQL> conn sys/<password>@localhost:1521/freepdb1 as sysdba
 
@@ -86,7 +86,7 @@ SQL> GRANT EXECUTE ON is_boss_logged_in TO DVSYS;
 なお、このルールを作成する前に、dual表を用いて以下のように正しく条件判定が出来ているかを確認するといいと思います。
 
 
-```sql
+```text
 SQL> select SYS_CONTEXT('USERENV','SESSION_USER') = 'TPI_USER' AND C##DVOWNER.IS_BOSS_LOGGED_IN = TRUE from dual;
 
 SYS_CONTEXT('USERENV','SESSION_USER')='TPI_USER'ANDC##DVOWNER.IS_BOSS_LOGGED_IN=TRUE

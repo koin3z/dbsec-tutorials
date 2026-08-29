@@ -13,7 +13,7 @@ sidebar:
 
 此処から先はC##DVOWNERユーザーやSYSユーザーなど実行するユーザーが混じります。それぞれのユーザーで接続した端末を用意しておくことを推奨します。
 
-```
+```bash
 -- sysユーザー
 sql sys/<password>@localhost:1521/freepdb1 as sysdba
 
@@ -41,7 +41,7 @@ HRユーザー、SALES_APPユーザー、APPユーザーの作成および権限
 レルム設定の前にこの時点での特権ユーザーの制限を確認しておきます。
 Database Vaultを有効化した時点でSYSユーザーによる管理操作が制限され、ユーザーが作成できないことが分かります。
 
-```sql
+```text
 -- PDB
 -- SYSユーザーでユーザー作成を試みる
 SQL> show user con_name
@@ -67,7 +67,7 @@ Help: https://docs.oracle.com/error-help/db/ora-01031/
 ```
 ただ、この時点ではレルムはまだ作成していないため、表は参照することができます。
 
-```sql
+```text
 SQL> select count(*) from hr.jobs;
 
    COUNT(*)
@@ -97,7 +97,7 @@ END;
 
 作成したレルムは `DVSYS.DBA_DV_REALM` から確認できます。
 
-```sql title="[PDB] C##DVOWNERユーザー"
+```text title="[PDB] C##DVOWNERユーザー"
 SQL> select name, description, realm_type from dvsys.dba_dv_realm;
 
 NAME                                                 DESCRIPTION                                                                                                                                           REALM_TYPE
@@ -148,7 +148,7 @@ object_name, object_typeではワイルドカード `'%'` が使用すること�
 
 登録したオブジェクトは以下のコマンドで確認できます。
 
-```sql title="[PDB] C##DVOWNERユーザー"
+```text title="[PDB] C##DVOWNERユーザー"
 SQL> select REALM_NAME, OWNER, OBJECT_NAME, OBJECT_TYPE from DVSYS.DBA_DV_REALM_OBJECT where realm_name = 'Realm for demo';
 
 REALM_NAME        OWNER    OBJECT_NAME    OBJECT_TYPE
@@ -245,7 +245,7 @@ END;
 
 設定したレルム認可を確認します。
 
-```sql title="[PDB] C##DVOWNERユーザー"
+```text title="[PDB] C##DVOWNERユーザー"
 SQL> select realm_name, grantee, AUTH_OPTIONS,AUTH_RULE_SET_NAME from DVSYS.DBA_DV_REALM_AUTH where realm_name = 'Realm for demo';
 
 REALM_NAME        GRANTEE      AUTH_OPTIONS    AUTH_RULE_SET_NAME

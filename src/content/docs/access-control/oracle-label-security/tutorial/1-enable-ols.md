@@ -21,14 +21,14 @@ sidebar:
 
 JOB_HISTORY表をコピーし、ラベルを設定する表を `HR.JOB_HISTORY_4OLS` として別途用意します。
 
-```sql
+```text
 SQL> CREATE TABLE hr.job_history_4ols AS SELECT * FROM hr.job_history WHERE 1=0;
 SQL> INSERT INTO hr.job_history_4ols SELECT * FROM hr.job_history;
 ```
 
 作成した表を確認します。
 
-```sql
+```text
 SQL> select * from hr.job_history_4ols;
 
    EMPLOYEE_ID START_DATE    END_DATE     JOB_ID           DEPARTMENT_ID
@@ -112,7 +112,7 @@ OLS_ENABLE_STATUS       TRUE      Determines if OLS is enabled
 
 設定を完全に反映させるため、FREEPDB1の再起動を行います。
 
-```sql
+```text
 -- CDBに移動
 SQL> conn / as sysdba
 Connected.
@@ -131,7 +131,7 @@ SQL> alter pluggable database freepdb1 open;
 
 OLSを操作するためのロール、LBAC_DBAロールを持っているユーザーを確認します。
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 SQL> select * from dba_role_privs where granted_role = 'LBAC_DBA';
 
 GRANTEE    GRANTED_ROLE    ADMIN_OPTION    DELEGATE_OPTION    DEFAULT_ROLE    COMMON    INHERITED
@@ -157,7 +157,7 @@ GRANT INHERIT PRIVILEGES ON USER SYS TO LBACSYS;
 ## OLSポリシーを作成し有効化する
 OLSポリシー（またはポリシーコンテナ）を作成します。
 
-```
+```sql
 BEGIN
   SA_SYSDBA.CREATE_POLICY (
     policy_name      => 'OLS_POL_DEMO',
@@ -169,7 +169,7 @@ END;
 `PL/SQL procedure successfully completed.` が表示され、無事実行されたことを確認します。
 
 作成したポリシーを有効化します。
-```
+```sql
 EXEC SA_SYSDBA.ENABLE_POLICY ('OLS_POL_DEMO');
 ```
 

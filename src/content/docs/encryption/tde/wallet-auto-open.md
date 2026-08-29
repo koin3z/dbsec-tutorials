@@ -15,7 +15,7 @@ sidebar:
 
 データベースを再起動すると、Keystoreは通常 `CLOSED` に戻るため、暗号化表領域を利用するには明示的に `OPEN` の操作が必要になります。
 
-```sql title="[CDB] SYSユーザー"
+```text title="[CDB] SYSユーザー"
 SQL> select * from v$encryption_wallet;
 
 WRL_TYPE    WRL_PARAMETER                         STATUS    WALLET_TYPE    WALLET_ORDER    KEYSTORE_MODE    FULLY_BACKED_UP       CON_ID
@@ -27,7 +27,7 @@ FILE                                              CLOSED    UNKNOWN        SINGL
 
 手動ですべてのコンテナのKeystoreをOPENする場合は次のコマンドです。
 
-```
+```sql
 administer key management set keystore open identified by <password> container=all;
 ```
 
@@ -40,7 +40,7 @@ administer key management set keystore open identified by <password> container=a
 
 オープンしていない場合、以下の手順にてキーストアをオープンします。
 
-```sql title="[CDB] SYSユーザー"
+```text title="[CDB] SYSユーザー"
 SQL> administer key management set keystore open identified by OracleKM123# container = all;
 
 -- オープンしていることを確認する
@@ -60,7 +60,7 @@ FILE                                              OPEN      PASSWORD       SINGL
 
 既存のKeystoreから、自動ログイン・キーストアを作成します。
 
-```
+```sql
 administer key management create auto_login keystore from keystore identified by OracleKM123#;
 ```
 
@@ -69,7 +69,7 @@ administer key management create auto_login keystore from keystore identified by
 
 必要に応じてKeystoreのファイルを確認します。この時点で `cwallet.sso` が作成され、 `ewallet` のバックアップも作成されたことが確認できます。  
 
-```sql title="[CDB] SYSユーザー"
+```text title="[CDB] SYSユーザー"
 -- 作成されたキーストアを確認
 SQL> !ls -l /opt/oracle/admin/FREE/wallet/tde/
 total 24
@@ -92,7 +92,7 @@ startup
 ```
 再起動後、`v$encryption_wallet` を確認します。
 
-```sql title="[CDB] SYSユーザー"
+```text title="[CDB] SYSユーザー"
 SQL> shu immediate
 Database closed.
 Database dismounted.

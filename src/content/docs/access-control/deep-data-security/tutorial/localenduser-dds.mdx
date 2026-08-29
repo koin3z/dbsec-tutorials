@@ -1,6 +1,6 @@
 ---
 title: ローカル・エンドユーザーによる Deep Data Security
-description: Deep Data Security のローカル・エンドユーザー認証を使い、Data Grant で行・列レベルのアクセス制御を実装するチュートリアルです。
+description: Deep Data Security のローカル・エンドユーザー認証を使い，Data Grant で行・列レベルのアクセス制御を実装するチュートリアルです。
 sidebar:
   order: 1
 ---
@@ -8,17 +8,21 @@ import { Aside } from '@astrojs/starlight/components';
 
 ## 実施内容
 
-この手順は、公式ガイドの Chapter 3 をベースに、実行しやすい順序へ整理したものです。
+この手順は，以下リンクの公式ガイドの Chapter 3 をベースに，実行しやすい順序へ整理したものです。
+
+https://docs.oracle.com/en/database/oracle/oracle-database/26/ddscg/configure-oracle-deep-data-security-direct-logon-local-end-users.html
 
 ## 前提条件
 
 - 23.26.2 以上のデータベース環境
 
+以下手順はオンプレミス Linux 用 Oracle AI Database 26ai Enterprise Edition を使用していますが，Base Database や FREE でも同様に利用できます。
+
 ## 1. 前提の確認
 
-最初に DBA ユーザーで接続し、対象 PDB へ切り替えます。COMPATIBLE は 20.0 以上である必要があります。
+最初に DBA ユーザーで接続し，対象 PDB へ切り替えます。COMPATIBLE は 20.0 以上である必要があります。
 
-```sql
+```text
 SQL> sho parameter compatible
 NAME              TYPE    VALUE
 ----------------- ------- ------
@@ -28,9 +32,9 @@ noncdb_compatible boolean FALSE
 
 ## 2. サンプルスキーマとデータの作成
 
-`hr.employees` 表を作り、5 行のサンプル従業員データを投入します。  
+`hr.employees` 表を作り，5 行のサンプル従業員データを投入します。  
 
-```sql
+```text
 -- USERS表領域があるか確認
 SQL> select TABLESPACE_NAME from dba_tablespaces;
 
@@ -43,16 +47,16 @@ TEMP
 USERS
 ```
 
-万が一ない場合は、USERS表領域を作成しておきます。
-```
+万が一ない場合は，USERS表領域を作成しておきます。
+```sql
 CREATE TABLESPACE users
   DATAFILE '<data_file_path>' SIZE 100M
   AUTOEXTEND ON;
 ```
 
-`HR`ユーザー（スキーマ）を作成します。このユーザーは `NO AUTHENTICATION` として作成し、スキーマ限定ユーザーとして直接ログインしない構成にします。
+`HR`ユーザー（スキーマ）を作成します。このユーザーは `NO AUTHENTICATION` として作成し，スキーマ限定ユーザーとして直接ログインしない構成にします。
 
-```
+```sql
 create user hr no AUTHENTICATION
   default tablespace users
   quota unlimited on users;
@@ -60,7 +64,7 @@ create user hr no AUTHENTICATION
 
 テーブル作成とサンプルデータを投入します。
 
-```
+```sql
 -- テーブル作成
 CREATE TABLE hr.employees (
     employee_id   NUMBER PRIMARY KEY,
@@ -89,11 +93,11 @@ COMMIT;
 ```
 
 確認します。
-```
+```sql
 SELECT * FROM hr.employees ORDER BY employee_id;
 ```
 
-```sql
+```text
 SQL> SELECT * FROM hr.employees ORDER BY employee_id;
 
    EMPLOYEE_ID FIRST_NAME    LAST_NAME    EMAIL        MANAGER      SSN               SALARY PHONE
@@ -107,20 +111,20 @@ ______________ _____________ ____________ ____________ ____________ ____________
 
 ## 3. ローカル・エンドユーザーの作成
 
-次に、Deep Data Security 用のローカル・エンドユーザーを２人作ります。  
-コンテクストとして参照する `ORA_END_USER_CONTEXT.username` と `hr.employees.email` / `manager` の値が一致するよう、ユーザー名を `manderson` と `ebaker` にすることに注意します。
+次に，Deep Data Security 用のローカル・エンドユーザーを２人作ります。  
+コンテクストとして参照する `ORA_END_USER_CONTEXT.username` と `hr.employees.email` / `manager` の値が一致するよう，ユーザー名を `manderson` と `ebaker` にすることに注意します。
 
-```
+```sql
 CREATE END USER "manderson" IDENTIFIED BY <password>;
 CREATE END USER "ebaker" IDENTIFIED BY <password>;
 ```
 
 ## 4. Data Role と接続用ロールの作成
 
-ローカルエンドユーザーの構成では、Data Role に対して標準ロール経由で `CREATE SESSION` を与えます。  
-ここでは `employee_role` と `manager_role` を作成し、manderson に両方、ebaker に `employee_role` のみを付与します。
+ローカルエンドユーザーの構成では，Data Role に対して標準ロール経由で `CREATE SESSION` を与えます。  
+ここでは `employee_role` と `manager_role` を作成し，manderson に両方，ebaker に `employee_role` のみを付与します。
 
-```
+```sql
 -- Data Role の作成
 CREATE DATA ROLE employee_role;
 CREATE DATA ROLE manager_role;
@@ -140,7 +144,7 @@ GRANT DATA ROLE employee_role TO "ebaker";
 
 ## 5. Data Grant を作成する
 
-`employee_role` には「自分の行だけ」、`manager_role` には「自分が `manager` 列で一致する行だけ、ただし SSN を除外」という２つの Data Grant を作成します。
+`employee_role` には「自分の行だけ」，`manager_role` には「自分が `manager` 列で一致する行だけ，ただし SSN を除外」という２つの Data Grant を作成します。
 
 
 ```sql
@@ -160,11 +164,11 @@ CREATE OR REPLACE DATA GRANT hr.manager_direct_reports
 ```
 
 Data Grant は加算的に効きます。  
-そのため、この２つで `manderson` は自分のレコードでは SSN を見られますが、部下である Emma と Taylor の SSN は見えません。`ebaker` は自分のレコードだけを見られるようになります。
+そのため，この２つで `manderson` は自分のレコードでは SSN を見られますが，部下である Emma と Taylor の SSN は見えません。`ebaker` は自分のレコードだけを見られるようになります。
 
 ## 6. アクセスを確認する
 
-接続する際は、`<host>:<port>/<service_name>` を環境に合わせて指定してください。
+接続する際は，`<host>:<port>/<service_name>` を環境に合わせて指定してください。
 
 ### manderson で接続する
 
@@ -182,9 +186,17 @@ Version 23.26.2.0.0
 SQL> 
 ```
 
+<Aside type="note">
+
+通常 Oracle Database ではオブジェクト名は作成時に小文字だったとしてもすべて大文字に変換されます。しかし，オブジェクト作成時にダブルクォート `"` で囲うことにより，小文字を区別して作成することが可能です。  
+ここでは mandarson 等のユーザー名はコンテキストと合わせるように小文字で作成しているため，小文字であることを明示的に示したうえでログインする必要があります。  
+そのため，上記では `sql '"manderson"'/<password> ...` とユーザー名をダブルクォートで囲っていることに注意します。これがないとユーザー名は大文字で認識されるためログインには失敗するはずです。
+
+</Aside>
+
 `hr.employees`表を参照します。
 
-```sql
+```text
 SQL> select * from hr.employees;
 
    EMPLOYEE_ID FIRST_NAME    LAST_NAME    EMAIL        MANAGER      SSN               SALARY PHONE
@@ -194,12 +206,12 @@ ______________ _____________ ____________ ____________ ____________ ____________
            500 Taylor        Mills        tmills       manderson                        9000 555-0500
 ```
 
-`manderson` は `employee_role`（自分の行）と `manager_role`（部下の行・SSN 除く）の両方を持つため、３行が返されます。また、Emma と Taylor の SSN 列は空(NULL)になっていることがわかります。
+`manderson` は `employee_role`（自分の行）と `manager_role`（部下の行・SSN 除く）の両方を持つため，３行が返されます。また，Emma と Taylor の SSN 列は空(NULL)になっていることがわかります。
 
 
-エンドユーザーで接続した場合、`show user` は `XS$NULL` と表示されます。実際に接続中のエンドユーザーは `ORA_END_USER_CONTEXT.username` で確認できます。
+エンドユーザーで接続した場合，`show user` は `XS$NULL` と表示されます。実際に接続中のエンドユーザーは `ORA_END_USER_CONTEXT.username` で確認できます。
 
-```sql
+```text
 SQL> show user
 USER is "XS$NULL"
 
@@ -219,11 +231,11 @@ ORA_END_USER_CONTEXT
 <Aside type="caution">
 SQLcl（JDBC）では `ORA_END_USER_CONTEXT` の型 119 をフェッチできずエラーになる場合があります。失敗した場合は `JSON_VALUE` で個別フィールドを取得してください。
 確認するだけであれば代わりに SQL*Plus を使用しても構いません。
-```
+```sql
 SELECT JSON_VALUE(ORA_END_USER_CONTEXT, '$.USERNAME' RETURNING VARCHAR2(128)) AS username FROM dual;
 ```
 
-```sql
+```text
 SQL> SELECT JSON_VALUE(
   2           ORA_END_USER_CONTEXT,
   3           '$.USERNAME'
@@ -255,9 +267,9 @@ Version 23.26.2.0.0
 SQL>
 ```
 
-`ebaker` は `employee_role` のみのため、自分の行 １件だけが返されます。SSN も自分のレコードなので表示されます。
+`ebaker` は `employee_role` のみのため，自分の行 １件だけが返されます。SSN も自分のレコードなので表示されます。
 
-```sql
+```text
 SQL> SELECT * FROM hr.employees;
 
    EMPLOYEE_ID FIRST_NAME    LAST_NAME    EMAIL     MANAGER      SSN               SALARY PHONE
@@ -267,7 +279,7 @@ ______________ _____________ ____________ _________ ____________ ______________ 
 
 manderson と同様にユーザー名は `ORA_END_USER_CONTEXT.username` から取得することができます。
 
-```sql
+```text
 SQL> SELECT ORA_END_USER_CONTEXT.username FROM dual;
 
 USERNAME
@@ -277,8 +289,8 @@ USERNAME
 
 ### ORA_END_USER_CONTEXT の全体を確認する
 
-先ほどは `SELECT ORA_END_USER_CONTEXT.username` からユーザー名のみを取り出しましたが、その他に何が取り出せるか全体を確認します。  
-JSON ドット記法でアイテムメソッド（`.string()` / `.number()` など）を付けない場合、戻り値は SQL の VARCHAR2 ではなく JSON 値になります。`JSON_SERIALIZE` を使うと全体を整形して表示できます。
+先ほどは `SELECT ORA_END_USER_CONTEXT.username` からユーザー名のみを取り出しましたが，その他に何が取り出せるか全体を確認します。  
+JSON ドット記法でアイテムメソッド（`.string()` / `.number()` など）を付けない場合，戻り値は SQL の VARCHAR2 ではなく JSON 値になります。`JSON_SERIALIZE` を使うと全体を整形して表示できます。
 
 ```sql
 SELECT JSON_SERIALIZE(
@@ -289,7 +301,7 @@ SELECT JSON_SERIALIZE(
 FROM dual;
 ```
 
-```sql
+```text
 SQL> SELECT JSON_SERIALIZE(
   2           ORA_END_USER_CONTEXT
   3           RETURNING VARCHAR2(4000)
@@ -379,7 +391,7 @@ DROP DATA ROLE manager_role;
 DROP ROLE db_role;
 ```
 
-以上で、ローカルエンドユーザーを使用した Deep Data Security のチュートリアルは以上です。
+以上で，ローカルエンドユーザーを使用した Deep Data Security のチュートリアルは以上です。
 
 ## 参考リンク
 

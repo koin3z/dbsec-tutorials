@@ -14,7 +14,7 @@ sidebar:
 
 ステータスを確認します。
 
-```sql
+```text
 SQL> set markup csv on
 SQL> select * from DBA_SQL_FIREWALL_STATUS;
 "STATUS"  ,"STATUS_UPDATED_ON"                  ,"EXCLUDE_JOBS"
@@ -23,7 +23,7 @@ SQL> select * from DBA_SQL_FIREWALL_STATUS;
 
 DISABLEDとなっていれば無効化状態なので、次のコマンドで有効化します。
 
-```sql
+```text
 EXEC DBMS_SQL_FIREWALL.ENABLE;
 
 -- 有効化されたことを確認

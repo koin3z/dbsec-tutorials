@@ -20,7 +20,7 @@ TDEを構成するうえで、まず押さえるべき初期化パラメータ�
 
 以下の実行はTDE構成前の結果となります。
 
-```sql
+```text
 SQL> select inst_id, name, value, issys_modifiable from gv$parameter where name = 'wallet_root';
 
    INST_ID NAME           VALUE    ISSYS_MODIFIABLE
@@ -40,7 +40,7 @@ __________ ______________ ________ ___________________
 
 以下の実行はTDE構成前の結果となります。
 
-```sql
+```text
 SQL> select inst_id, name, value, issys_modifiable from gv$parameter where name = 'tde_configuration';
 
    INST_ID NAME                 VALUE    ISSYS_MODIFIABLE

@@ -29,7 +29,7 @@ Oracle Database Vault を有効化する前に、Database Vault および Oracle
 
 CDB$ROOTに接続し、Database Vaultの構成および有効化状況を確認します。
 
-```sql title="[CDB]"
+```text title="[CDB]"
 SQL> SELECT * FROM CDB_DV_STATUS;
 
 NAME                   STATUS               CON_ID
@@ -61,7 +61,7 @@ DV_ACCTMGR ロールは CDBルートの共通ユーザーに対して共通ロ�
 
 共通ユーザーを作成する前に、共通ユーザーの接頭辞（通常は `C##` ）が正しいかどうか確認しておきます。
 
-```sql
+```text
 -- CDB
 SQL> select name, value from v$parameter where name = 'common_user_prefix';
 
@@ -95,7 +95,7 @@ END;
 
 CDBの構成ステータスが TRUE になっていることを確認します。
 
-```sql
+```text
 SQL> SELECT * FROM CDB_DV_STATUS;
 
 NAME                   STATUS               CON_ID
@@ -135,7 +135,7 @@ Database Vaultをマルチテナント環境(CDB)で有効化する際には、�
 今回はPDBだけで Database Vault を使用していきますので、「通常モード」で有効化していきます。  
 先ほど作成し、DV管理者として指定した `C##DVOWNER` ユーザーでCDBに接続します。
 
-```sql
+```text
 -- CDB
 [oracle@db-tut ~]$ sql C##DVOWNER/Welcome1#Welcome1#
 
@@ -157,7 +157,7 @@ CDB$ROOT
 ```
 
 通常モードで有効化します。
-```sql
+```text
 SQL> EXEC DBMS_MACADM.ENABLE_DV;
 ```
 
@@ -207,7 +207,7 @@ Oracle Database Vault    TRUE
 ## 【PDB】Database Vaultの構成と有効化
 FREEPDB1に接続し、改めてPDBのオプションの状況を確認します。
 
-```sql
+```text
 SQL> alter session set container=freepdb1;
 
 Session altered.
@@ -242,7 +242,7 @@ END;
 /
 ```
 
-```sql
+```text
 -- 構成ステータスがTRUEになっていることを確認
 SQL> SELECT * FROM DBA_DV_STATUS;
 
@@ -255,7 +255,7 @@ DV_APP_PROTECTION      NOT CONFIGURED
 
 `utlrp.sql` スクリプトを実行し、無効化状態となっているオブジェクトをコンパイルします。
 
-```sql
+```text
 -- PDB
 SQL> @?/rdbms/admin/utlrp.sql
 
@@ -270,7 +270,7 @@ COMP_TIMESTAMP UTLRP_BGN              2026-02-10 14:41:44
 問題なく、実行が完了することを確認します。
 先ほど構成した Vault所有者ユーザーとして、PDBに接続します。
 
-```sql
+```text
 SQL> conn c##dvowner/Welcome1#Welcome1#@localhost:1521/freepdb1;
 Connected.
 SQL> show user con_name
@@ -284,7 +284,7 @@ SQL> EXEC DBMS_MACADM.ENABLE_DV;
 ```
 
 CDBにSYSユーザーで接続し、PDBを再起動します。
-```sql
+```text
 SQL> show user con_name
 USER is "SYS"
 CON_NAME

@@ -22,7 +22,7 @@ SALES_APP ユーザーには EMPLOYEES テーブルの `SALARY` 列と `COMMISSI
 
 まず、`SALARY` 列に対してリダクションポリシーを作成します。以下のコマンドを実行します
 
-```
+```sql
 BEGIN
   DBMS_REDACT.ADD_POLICY(
     object_schema       => 'HR',
@@ -44,7 +44,7 @@ END;
 > 処置: リダクション・ポリシーが定義済ではない表またはビューを指定するか、DBMS_REDACT.ALTER_POLICYを使用してこのオブジェクトの既存のリダクション・ポリシーを変更します。
 > https://docs.oracle.com/cd/F19136_01/errmg/ORA-24280.html
 
-```
+```sql
 BEGIN
   DBMS_REDACT.ALTER_POLICY(
     object_schema  => 'HR',
@@ -64,7 +64,7 @@ SELECT * FROM redaction_policies;
 SELECT object_owner, object_name, column_name, function_type FROM redaction_columns;
 ```
 
-```sql
+```text
 SQL> SELECT * FROM redaction_policies;
 
 OBJECT_OWNER OBJECT_NAME POLICY_NAME                EXPRESSION                                           ENABLE POLICY_DESCRIPTION

@@ -20,7 +20,7 @@ where句を使用すると行レベルでの制御になりますが、VPDでは
 
 列に対するフィルタ条件を定義するVPD関数を作成します。 この例では、SALARY 列をSALES_APPユーザーから非表示にします。
 
-```
+```sql
 CREATE OR REPLACE FUNCTION hr.get_masking_salary_col(
   p_schema IN VARCHAR2,
   p_table  IN VARCHAR2
@@ -60,7 +60,7 @@ END;
 
 作成したVPDポリシーは `ALL_POLICIES` ビューで確認できます。
 
-```sql
+```text
 SQL> select object_owner, object_name, policy_name, function, sel, ins, upd, del, idx, policy_type, common from all_policies where object_owner  = 'HR';
 
 OBJECT_OWNER OBJECT_NAME POLICY_NAME                     FUNCTION               SEL INS UPD DEL IDX POLICY_TYPE COMMON
@@ -76,7 +76,7 @@ HR           EMPLOYEES   EMPLOYEES_SALARY_COL_VPD_POLICY GET_MASKING_SALARY_COL 
 
 作成したVPDポリシーが正しく機能しているかを確認します。 念のため、HRユーザーでアクセスし、salary列および107行すべてが表示されることを確かめます。
 
-```sql title="HRユーザー"
+```text title="HRユーザー"
 SQL> select first_name, salary from hr.employees;
 
 FIRST_NAME  SALARY
@@ -128,7 +128,7 @@ ___________ ___________ __________ _________ ______________ _________ __________
 
 SALES_APPユーザーでは、SALARY 列が含まれるクエリを実行すると、VPDによる制御が適用されます。
 
-```sql title="SALES_APPユーザー"
+```text title="SALES_APPユーザー"
 -- salary列を含むクエリ
 SQL> select first_name, salary from hr.employees;
 
@@ -170,7 +170,7 @@ VPDポリシーを作成する際、デフォルトでは対象列が選択さ�
 
 既存のVPDポリシーを削除し、新たに作成します。
 
-```text title="SYSTEMユーザー"
+```sql title="SYSTEMユーザー"
 -- 既存のVPDポリシーを削除
 BEGIN
   DBMS_RLS.DROP_POLICY(
@@ -181,7 +181,7 @@ BEGIN
 END;
 /
 ```
-```text title="SYSTEMユーザー"
+```sql title="SYSTEMユーザー"
 -- VPDポリシーを再作成
 BEGIN
   DBMS_RLS.ADD_POLICY (
@@ -201,7 +201,7 @@ END;
 
  ポリシー再作成後、再びSALES_APPユーザーで確認します。SALARY 列がNULL値として表示されます。
 
-```sql
+```text
 SQL> select first_name, salary from hr.employees;
 
 FIRST_NAME  SALARY

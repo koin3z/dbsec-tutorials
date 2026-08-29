@@ -79,7 +79,7 @@ The command completed successfully
 DBサーバーで受信した通信をキャプチャし、暗号化が行われているかどうかを確認します。
 ここではその確認手段として、パケットキャプチャ・ツール tshard (Wireshark CLI) をDBサーバーへインストールします。
 
-```
+```bash
 sudo dnf -y install wireshark
 ```
 
@@ -103,7 +103,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 DBサーバー側でポート1521を開放し、通信を受け付ける準備をします。
 OCI の Oracle Linux インスタンスでは `firewalld` が設定されているため、次のコマンドでポート1521を解放します。
 
-```
+```bash
 sudo firewall-cmd --permanent --add-port=1521/tcp
 sudo firewall-cmd --reload
 ```
@@ -145,7 +145,7 @@ Running as user "root" and group "root". This could be dangerous.
 
 確認したインターフェース名`enp0s5` を使用して、TCP/1521 の通信をキャプチャします。
 
-```
+```bash
 # TCP/1521 で受信する通信をキャプチャ
 sudo tshark -i 1 -Y 'tcp.port==1521' -x
 ```
@@ -159,7 +159,7 @@ sudo tshark -i 1 -Y 'tcp.port==1521' -x
 なお、DBホストから `localhost` で接続すると、外部インターフェースを通らずキャプチャされません。そのため、本手順では別ホスト（リモートクライアント）から接続を行います。
 接続のためのコマンド構成は以下の通りです。
 
-```
+```bash
 sql <ユーザー名>>/<パスワード>@<接続先ホスト>:<ポート>/<サービス名>
 ```
 
@@ -265,7 +265,7 @@ SQLNET.CRYPTO_CHECKSUM_TYPES_SERVER = (SHA512)
 
 クライアント側で再びDBに接続し、先ほどと同様に問い合わせを行います。
 
-```sql
+```text
 ➜  ~ sql system@159.13.59.170:1521/freepdb1
 ...
 Password? (**********?) ******************
@@ -317,16 +317,16 @@ DBサーバー側 tshark のHEXダンプでは、暗号化前に見えていた�
 
 また、パケットの見え方だけでなく、DB内部からも「その接続で暗号化が使われたか」を確認できます。
 
-```
+```sql
 select network_service_banner from v$session_connect_info where sid in (select distinct sid from v$mystat);
 ```
 
 使用中のアルゴリズムなど、使用可能な暗号化サービスおよび整合性検証サービスに関するバナー情報が確認できます。
-```
+```sql
 select network_service_banner from v$session_connect_info where sid in (select distinct sid from v$mystat);
 ```
 
-```sql
+```text
 SQL> select network_service_banner from v$session_connect_info where sid in (select distinct sid from v$mystat);
 
 NETWORK_SERVICE_BANNER
@@ -340,7 +340,7 @@ Crypto-checksumming service for Linux: Version 23.26.1.0.0 - Production
 Oracle Netのネイティブ暗号化および整合性が使用されていなかった場合でも、この結果には使用可能なセキュリティ・サービス(Oracle Databaseソフトウェアにリンクされているサービス)のエントリが含まれます。
 しかし、「暗号化サービス自体は利用可能だが、実際にこの接続では特定アルゴリズムが使われていない」場合は、以下の用にアルゴリズム名が出ないような結果になります。
 
-```sql
+```text
 SQL> select network_service_banner from v$session_connect_info where sid in (select distinct sid from v$mystat);
 
 NETWORK_SERVICE_BANNER

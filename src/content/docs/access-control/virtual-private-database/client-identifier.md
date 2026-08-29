@@ -105,7 +105,7 @@ END;
 
 以下のコマンドはすべてAPPユーザーで実行します。
 
-```sql
+```text
 -- ユーザーがAPPであることを確認
 SQL> set pages 200
 SQL> show user
@@ -120,7 +120,7 @@ no rows selected
 ### (1) Viewerの場合
 クライアント識別子「VIEWER」を設定し、APP ユーザーでクエリを実行します。
 
-```sql
+```text
 -- クライアント識別子の設定
 SQL> EXEC DBMS_SESSION.SET_IDENTIFIER('VIEWER');
 
@@ -143,7 +143,7 @@ EMPLOYEE_ID FIRST_NAME           JOB_ID
 
 クライアント識別子「EDITOR」を設定し、APP ユーザーでクエリを実行します。
 
-```sql
+```text
 -- クライアント識別子の設定
 SQL> EXEC DBMS_SESSION.SET_IDENTIFIER('EDITOR');
 
@@ -166,7 +166,7 @@ EMPLOYEE_ID FIRST_NAME           JOB_ID
 ### (3) Adminの場合
 クライアント識別子「Admin」を設定し、APP ユーザーでクエリを実行します。
 
-```sql
+```text
 -- クライアント識別子の設定
 SQL> EXEC DBMS_SESSION.SET_IDENTIFIER('ADMIN');
 

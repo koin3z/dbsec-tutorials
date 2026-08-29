@@ -29,7 +29,7 @@ TDEで使用されるマスター暗号鍵は、OS上のファイル（12c以降
 
 CDBに接続し、以下のコマンドでパラメータを設定します。PDBから実行はできませんので、CDBから実行を行ってください。
 
-```sql title="[CDB] SYSユーザー"
+```text title="[CDB] SYSユーザー"
 -- パラメータを設定
 SQL> alter system set wallet_root='/opt/oracle/admin/FREE/wallet' scope=spfile;
 
@@ -76,7 +76,7 @@ __________ ______________ ________________________________ ___________________
 
 今回はデモのため、DBサーバー上の FILE Keystore を使用します。
 
-```sql title="[CDB] SYSユーザー"
+```text title="[CDB] SYSユーザー"
 -- パラメータを設定
 SQL> alter system set tde_configuration='keystore_configuration=file' scope=both;
 
@@ -109,7 +109,7 @@ CDB$ROOTで `tde_configuration` を設定すると、統一（united）PDBは基
 
 > 参考リンク：[26ai - ADMINISTER KEY MANAGEMENT](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ADMINISTER-KEY-MANAGEMENT.html)
 
-```sql title="[CDB] SYSKMユーザー or SYSユーザー"
+```text title="[CDB] SYSKMユーザー or SYSユーザー"
 -- SYSKMユーザーで接続
 SQL> conn / as syskm
 Connected.
@@ -136,7 +136,7 @@ $ tree /opt/oracle/admin/FREE/wallet
 
 作成された Keystore は `orapki` コマンドから中身を確認することもできます。
 
-```sql
+```text
 -- orapki コマンドで確認
 SQL> !orapki wallet display -wallet /opt/oracle/admin/FREE/wallet/tde -pwd "<password>" -details
 Oracle PKI Tool Release 23.0.0.0.0 - Production
@@ -159,7 +159,7 @@ ORACLE.SECURITY.KB.ENCRYPTION.
 
 また、データベースから Keystore が正しく認識されていることが `V$ENCRYPTION_WALLET`ビューからも確認することができます。
 
-```sql title="[CDB] SYSユーザー"
+```text title="[CDB] SYSユーザー"
 SQL> select * from v$encryption_wallet;
 
 WRL_TYPE    WRL_PARAMETER                         STATUS    WALLET_TYPE    WALLET_ORDER    KEYSTORE_MODE    FULLY_BACKED_UP       CON_ID
@@ -171,7 +171,7 @@ FILE                                              CLOSED    UNKNOWN        SINGL
 
 上記の結果からわかる通り、 作成直後は Keystore の `STATUS=CLOSED` となっています。この状態では Keystore は使用できませんので、次のコマンドにて Keystore を `OPEN` にします。
 
-```sql title="[CDB] SYSユーザー" "OPEN_NO_MASTER_KEY"
+```text title="[CDB] SYSユーザー" "OPEN_NO_MASTER_KEY"
 SQL> administer key management set keystore open identified by <password> container=current;
 
 Key MANAGEMENT succeeded.
@@ -192,7 +192,7 @@ FILE                                              CLOSED                UNKNOWN 
 
 KeystoreをOPENしただけでマスター暗号鍵は存在しない状態です。
 
-```sql title="[CDB] SYSKMユーザー or SYSユーザー"
+```text title="[CDB] SYSKMユーザー or SYSユーザー"
 SQL> select * from v$encryption_keys;
 
 no rows selected
@@ -205,7 +205,7 @@ no rows selected
 
 > 参考リンク：[26ai - 統一モードでのキーストアおよびTDEマスター暗号化キーの管理](https://docs.oracle.com/cd/E96517_01/asoag/managing-keystores-encryption-keys-in-united-mode.html)
 
-```sql title="[CDB] SYSKMユーザー or SYSユーザー"
+```text title="[CDB] SYSKMユーザー or SYSユーザー"
 SQL> administer key management set key using tag 'v1.0_MEK' identified by <password> with backup container=current;
 ```
 - `USING TAG` は省略可能ですが、ローテーション管理のため付与が推奨されます。
@@ -246,7 +246,7 @@ ORACLE.SECURITY.KT.ENCRYPTION.AYR7Rvt8DE8qhEm4JlOxDVwAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 一方、データベースからも認識されていることを確認できます。
 
-```sql title="[CDB] SYSユーザー"
+```text title="[CDB] SYSユーザー"
 SQL> select * from v$encryption_wallet;
 
 WRL_TYPE    WRL_PARAMETER                         STATUS    WALLET_TYPE    WALLET_ORDER    KEYSTORE_MODE    FULLY_BACKED_UP       CON_ID
@@ -267,7 +267,7 @@ AYR7Rvt8DE8qhEm4JlOxDVwAAAAAAAAAAAAAAAAAAAAAAAAAAAAA    v1.0_MEK    09-FEB-26 04
 
 PDB側でも同様に、そのPDBのマスター暗号鍵を作成します。統一モードのため、キーは共通のKeystoreに格納されます。
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 -- PDBに接続を切り替え
 SQL> alter session set container=freepdb1;
 SQL> show con_name
@@ -291,7 +291,7 @@ no rows selected
 PDB のマスター暗号鍵を作成します。（以下の実行ではSYSユーザーを使用しています）
 今回のように、Keystore が閉じている場合でも、`FORCE KEYSTORE`句を付けることにより「閉じているKeystoreに対しても操作可能」になります。
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 SQL> administer key management set key using tag 'v1.1_MEK' force keystore identified by <password> with backup container=current;
 
 Key MANAGEMENT succeeded.
@@ -299,7 +299,7 @@ Key MANAGEMENT succeeded.
 
 作成されたことを確認します。
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 SQL> select * from v$encryption_wallet;
 
 WRL_TYPE    WRL_PARAMETER    STATUS    WALLET_TYPE    WALLET_ORDER    KEYSTORE_MODE    FULLY_BACKED_UP       CON_ID

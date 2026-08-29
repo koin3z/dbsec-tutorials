@@ -35,13 +35,13 @@ identity_provider_type    NONE
 
 続いて、IDENTITY_PROVIDER_TYPE パラメータを設定します。
 
-```
+```sql
 alter system set IDENTITY_PROVIDER_TYPE=AZURE_AD scope=both;
 ```
 
 設定されたかを確認します。
 
-```sql
+```text
 SQL> select name, value from v$parameter where name='identity_provider_type';
 
 NAME                      VALUE
@@ -54,7 +54,7 @@ identity_provider_type    AZURE_AD
 - テナント ID
 - アプリケーション ID URI
 
-```
+```sql
 alter system set identity_provider_config =
 '{
   "application_id_uri": "<アプリケーション ID URI>",
@@ -65,7 +65,7 @@ alter system set identity_provider_config =
 
 設定したパラメータを確認します。
 
-```sql
+```text
 SQL> show parameter identity
 NAME                     TYPE   VALUE                                                                                                
 ------------------------ ------ ---------------------------------------------------------------------------------------------------- 
@@ -81,19 +81,19 @@ identity_provider_type   string AZURE_AD
 Database 上で、Entra ID のユーザーに紐付く形で DB ユーザーを作成します。
 ここではユーザーに紐付ける例を示していますが、アプリロールに紐付けることも可能です。
 
-```
+```sql
 create user entraid_user identified globally as 'AZURE_USER=<Entra ID ユーザー名>';
 ```
 
 続いて、接続に必要な権限を付与します。
 
-```
+```sql
 grant create session to entraid_user;
 ```
 
 ※ アプリロールに紐付ける場合は、以下のように作成します。
 
-```
+```sql
 CREATE USER <DBユーザー> IDENTIFIED GLOBALLY AS 'AZURE_ROLE=<EntraID ロール名>';
 CREATE ROLE <DBロール名> IDENTIFIED GLOBALLY AS 'AZURE_ROLE=<EntraID ロール名>';
 ```

@@ -11,13 +11,13 @@ sidebar:
 ## SALES_APP
 SALES アプリケーションが接続する想定ユーザーとして `SALES_APP` ユーザーを作成します。
 
-```text "<password>"
+```sql "<password>"
 create user sales_app identified by <password> default tablespace users temporary tablespace temp;
 ```
 
 以下は実行例です。証跡としてパスワードが残らないよう、2つのコマンドに分けて設定しています。
 
-```sql "<パスワードを入力>"
+```text "<パスワードを入力>"
 SQL> create user sales_app default tablespace users temporary tablespace temp;
 
 User SALES_APP created.

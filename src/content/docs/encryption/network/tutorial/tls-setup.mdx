@@ -20,7 +20,7 @@ Oracle Databaseへの接続をSSL/TLS(TCPS)に切り替え、通信を暗号化�
 ウォレットおよび証明書を配置するための作業ディレクトリを作成します。  
 ここでは、`/home/oracle/wallet/tls` 配下で作業を行っていきます。
 
-```
+```bash
 # DBサーバー
 mkdir -p /home/oracle/wallet/tls
 cd /home/oracle/wallet/tls
@@ -46,7 +46,7 @@ Syntax :
 
 なお、ここから先は ウォレットの配置場所を `$WALLET_LOCATION` 変数で扱っていきます。
 
-```
+```bash
 export WALLET_LOCATION=/home/oracle/wallet/tls
 ```
 
@@ -54,7 +54,7 @@ export WALLET_LOCATION=/home/oracle/wallet/tls
 
 サーバー証明書を格納するためのウォレットを作成します。ウォレットを操作するための `<password>` を指定することにご注意ください。
 
-```
+```bash
 orapki wallet create -wallet $WALLET_LOCATION -pwd <password> -auto_login
 ```
 
@@ -78,7 +78,7 @@ total 8
 
 ここではサーバ証明書を自己署名で作成し、ウォレットに登録します。
 
-```
+```bash
 orapki wallet add \
   -wallet $WALLET_LOCATION \
   -pwd <password> \
@@ -90,7 +90,7 @@ orapki wallet add \
 
 作成・登録した証明書の情報は以下のコマンドで確認を行うことができます。
 
-```
+```bash
 orapki wallet display \
   -wallet $WALLET_LOCATION \
   -details
@@ -120,7 +120,7 @@ Subject:        CN=db-tut
 
 クライアントに配布するため、作成した証明書をエクスポートします。実行すると `cert_<hostname>.crt` で証明書ファイルが出力されます。
 
-```
+```bash
 orapki wallet export \
   -wallet $WALLET_LOCATION \
   -dn "CN=`hostname`" \
@@ -162,7 +162,7 @@ gClVagVEEEa4KQ==
 ### 2-1. 作業ディレクトリ作成
 まずは作業のためのディレクトリを作成します。パスは `$WALLET_LOCATION/client_wallet` とします。
 
-```
+```bash
 mkdir -p "$WALLET_LOCATION/client_wallet"
 cd "$WALLET_LOCATION/client_wallet"
 ```
@@ -170,7 +170,7 @@ cd "$WALLET_LOCATION/client_wallet"
 ### 2-2. クライアント用ウォレットを作成
 
 サーバー用ウォレットの作成時と同様にウォレットを作成します。
-```
+```bash
 orapki wallet create -wallet $WALLET_LOCATION/client_wallet -pwd <clientPassword> -auto_login
 ```
 
@@ -187,7 +187,7 @@ total 8
 ### 2-3. サーバー証明書を追加
 先ほどエクスポートしたサーバー証明書をクライアント用ウォレットに追加します。`-cert` 部分はお手元のファイル名に置き換えてください。
 
-```
+```bash
 orapki wallet add \
   -wallet $WALLET_LOCATION/client_wallet \
   -trusted_cert \
@@ -301,7 +301,7 @@ LISTENER =
 
 設定が完了したら、リスナーを再起動します。
 
-```
+```bash
 lsnrctl stop
 lsnrctl start
 ```
@@ -377,7 +377,7 @@ vCyMAmUgfPbH8aLKU0fybIXpIR2uRuMPPKFcSX3RZ4bDMXmztmPDXaZ7yyI3qpSL
 
 ## 6. ネットワーク設定
 使用している仮想環境に併せて、firewall設定を確認・許可の設定を行います。OCIのコンピュート(Oracle Linux)では firewalld が動作しているため、1522/tcp を許可する必要があります。
-```
+```bash
 sudo firewall-cmd --zone=public --add-port=1522/tcp --permanent
 sudo firewall-cmd --reload
 ```
@@ -408,7 +408,7 @@ public (active)
 ここからは、クライアントの方で設定を行うため、クライアント側のファイルを作成、編集をおこなっていきます。
 
 作業ディレクトリを作成します。ここでは `/home/ubuntu/wallet/tls` を作業ディレクトリとしています。
-```
+```bash
 mkdir -p wallet/tls
 ```
 

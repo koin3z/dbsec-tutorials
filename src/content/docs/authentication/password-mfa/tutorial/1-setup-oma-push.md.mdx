@@ -63,11 +63,11 @@ PDBに接続し、MFAに必要な初期化パラメータを設定します。
 
 OMAプッシュ通知で使用する Identity Domain のURLを設定します（PDBで設定可能な動的パラメータです）。
 
-```
+```sql
 ALTER SYSTEM SET MFA_OMA_IAM_DOMAIN_URL = "<控えておいたIdentity DomainのURL>";
 ```
 
-```sql title="[PDB] SYS（sysdba）"
+```text title="[PDB] SYS（sysdba）"
 SQL> alter system set MFA_OMA_IAM_DOMAIN_URL = "https://idcs-7e70daa81c094dcc98776e4ee48be3d1.identity.oraclecloud.com";
 
 System altered.
@@ -92,7 +92,7 @@ SMTPサーバーを使用しない場合、次のパラメータは設定不要�
 - MFA_SENDER_EMAIL_ID
 - MFA_SENDER_EMAIL_DISPLAYNAME
 
-```text title="SMTPを使う場合の例"
+```sql title="SMTPを使う場合の例"
 -- SMTPホスト、ポートの設定
 ALTER SYSTEM SET MFA_SMTP_HOST = "smtp.email.<Region Code>.oci.oraclecloud.com";
 ALTER SYSTEM SET MFA_SMTP_PORT = 587;
@@ -109,7 +109,7 @@ OAuthクライアント情報（クライアントID / クライアントシー�
 
 まずはウォレットの場所とPDBのGUIDを確認します。
 
-```sql
+```text
 SQL> sho parameter wallet_root
 NAME        TYPE   VALUE                                              
 ----------- ------ --------------------------------------------------                                               
@@ -129,7 +129,7 @@ DB1110_PDB1 40BA6EE05F8027C2E063B501F40ABC91
 
 OSユーザー `oracle` に切り替え、対象パスにMFAウォレットを作成します。mfa ディレクトリは自動で作成されます。
 
-```
+```bash
 orapki wallet create -wallet <wallet_path> -pwd <wallet_password> -auto_login -compat_v12
 ```
 
@@ -163,7 +163,7 @@ total 8
 
 `orapki secretstore create_entry` コマンドを使用して、クライアントIDとクライアントシークレットを上記で作成したウォレットに格納します。
 
-```
+```bash
 orapki secretstore create_entry -wallet <wallet_path> -pwd <wallet_password> -alias oracle.security.mfa.oma.clientid -secret <client id>
 
 orapki secretstore create_entry -wallet <wallet_path> -pwd <wallet_password> -alias oracle.security.mfa.oma.clientsecret -secret <client secret>
@@ -197,7 +197,7 @@ SMTPサーバーを使用する場合は、SMTPのユーザーIDとパスワー�
 - `oracle.security.mfa.smtp.user`
 - `oracle.security.mfa.smtp.password`
 
-```
+```bash
 orapki secretstore create_entry -wallet <wallet_path> -pwd <wallet_password> -alias oracle.security.mfa.smtp.user -secret <smtp user id>
 
 orapki secretstore create_entry -wallet <wallet_path> -pwd <wallet_password> -alias oracle.security.mfa.smtp.password -secret <smtp password>
@@ -211,7 +211,7 @@ OMAプッシュ認証は通知待ちが発生します。環境によっては `
 
 また、ウォレットの状態をDatabase側から確認します。
 
-```sql
+```text
 SQL> alter session set container=DB1110_PDB1;
 SQL> SELECT WRL_TYPE,
 2         WRL_PARAMETER,

@@ -121,7 +121,7 @@ azurepdb_token = (
 
 設定した接続記述子を指定して接続します。
 
-```
+```bash
 sql /@azurepdb_token
 ```
 
@@ -144,7 +144,7 @@ USER is "ENTRAID_USER"
 
 続いて、接続コンテキストを確認します。
 
-```
+```sql
 SELECT
   SYS_CONTEXT('USERENV','CURRENT_SCHEMA')         AS current_schema,
   SYS_CONTEXT('USERENV','CURRENT_USER')           AS current_user,

@@ -101,7 +101,7 @@ OCI コンソールに Identity Domain の管理権限を持つユーザーで�
 
 ダウンロードしたトークンを使用し、以下の `curl` コマンドを実行します。
 
-```
+```bash
 curl -X POST https://<domain_url>/admin/v1/CustomClaims \
   -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/scim+json" \
@@ -184,7 +184,7 @@ Identity Domains 画面からドメイン URL と対象アプリケーション�
 
 設定前の状態を確認します。
 
-```sql
+```text
 SQL> sho parameter identity
 NAME                           TYPE   VALUE
 ------------------------------ ------ -----
@@ -195,7 +195,7 @@ identity_provider_type         string NONE
 
 **Oracle AI Database（非 Autonomous）の場合**、対象 PDB で次を実行します。
 
-```
+```sql
 ALTER SYSTEM SET IDENTITY_PROVIDER_TYPE = OCI_IAM SCOPE=BOTH;
 
 ALTER SYSTEM SET IDENTITY_PROVIDER_OAUTH_CONFIG = '{
@@ -206,7 +206,7 @@ ALTER SYSTEM SET IDENTITY_PROVIDER_OAUTH_CONFIG = '{
 
 **Autonomous Database の場合**は `DBMS_CLOUD_ADMIN.ENABLE_EXTERNAL_AUTHENTICATION` を使います。
 
-```
+```sql
 BEGIN
   DBMS_CLOUD_ADMIN.ENABLE_EXTERNAL_AUTHENTICATION(
     type   => 'OCI_IAM',
@@ -227,7 +227,7 @@ END;
 
 **Oracle AI Database の場合**、SYS として実行します。
 
-```
+```sql
 BEGIN
   DBMS_CREDENTIAL.CREATE_CREDENTIAL(
     credential_name => 'OCI_IAM_DOMAIN_DB_CRED$',
@@ -240,7 +240,7 @@ END;
 
 **Autonomous Database の場合**、ADMIN として実行します。
 
-```
+```sql
 BEGIN
   DBMS_CLOUD.CREATE_CREDENTIAL(
     credential_name => 'OCI_IAM_DOMAIN_DB_CRED$',
@@ -261,7 +261,7 @@ show parameter identity
 
 OCI IAM グループと Database 側の Data Role を対応付けます。**グループ名の大文字・小文字は IAM 側と正確に一致させてください。**
 
-```
+```sql
 CREATE OR REPLACE DATA ROLE employee_role MAPPED TO 'IAM_OAUTH_GROUP=EMPLOYEE';
 CREATE OR REPLACE DATA ROLE manager_role  MAPPED TO 'IAM_OAUTH_GROUP=MANAGER';
 ```
@@ -281,7 +281,7 @@ OCI IAM ユーザーが SQL クライアントで直接ログインするには�
 
 > **注:** チュートリアルで作成した `db_role` と同じ役割です。そのまま流用することも可能です。
 
-```
+```sql
 CREATE ROLE deepsec_login_role;
 
 GRANT CREATE SESSION TO deepsec_login_role;
@@ -295,7 +295,7 @@ GRANT deepsec_login_role TO employee_role;
 
 ローカルチュートリアルと同じ Data Grant を作成します。`ORA_END_USER_CONTEXT.username` には OCI IAM トークンの `sub`（IAM ユーザー名）が入ります。
 
-```
+```sql
 -- employee_role へ自分の email と一致する行の全列を SELECT できる
 CREATE OR REPLACE DATA GRANT hr.employees_own_record
   AS SELECT
@@ -369,7 +369,7 @@ https://docs.oracle.com/error-help/db/ora-18718/
 | `<username>` / `<password>` | IAM ユーザーのユーザー名とパスワード |
 | `<application_scope>` | リソース・サーバーのオーディエンスとスコープを結合した値（例: `ORACLEDB26AI/DDS_DB_ACCESS`） |
 
-```text "<encoded_app_credentials>" "<domain_url>" "<username>" "<password>" "<application_scope>"
+```bash "<encoded_app_credentials>" "<domain_url>" "<username>" "<password>" "<application_scope>"
 curl -i \
   -H "Authorization: Basic <encoded_app_credentials>" \
   -H "Content-Type: application/x-www-form-urlencoded;charset=UTF-8" \
@@ -408,7 +408,7 @@ USER is "XS$NULL"
 サンプルデータを参照し、アクセス制御が働いていることを確認します。
 `manderson` は自分の行と部下の行（SSN 除く）が見え、`ebaker` は自分の行のみが見えます。
 
-```sql
+```text
 -- manderson でアクセスした場合
 SQL> select * from hr.employees;
 
@@ -430,7 +430,7 @@ ___________ __________ _________ ______ _________ ___________ ______ ________
 
 トークン接続時のコンテキストを確認します。`USER.TOKEN` にトークンの `iss` / `sub` / `aud` が格納されています。
 
-```sql
+```text
 SQL> SELECT ORA_END_USER_CONTEXT.USER.TOKEN FROM DUAL;
 
 TOKEN                                                                               
@@ -440,7 +440,7 @@ ________________________________________________________________________________
 
 また参考までに、コンテクストの全体を以下にサンプルとして示します。
 
-```sql
+```text
 SQL> SELECT JSON_SERIALIZE(
   2           ORA_END_USER_CONTEXT
   3           RETURNING VARCHAR2(4000)

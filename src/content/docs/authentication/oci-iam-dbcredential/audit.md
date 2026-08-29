@@ -18,7 +18,7 @@ sidebar:
 
 まずは統合監査が有効化になっているかを確認します。何も操作していなければ、デフォルトで `TRUE` となっているはずです。
 
-```sql
+```text
 SQL> select * from V$OPTION where PARAMETER = 'Unified Auditing';
 
 PARAMETER        VALUE CON_ID 
@@ -28,7 +28,7 @@ Unified Auditing TRUE       0
 
 次に、現在有効な監査ポリシーを確認します。Autonomous Database では用途別の監査ポリシーがあらかじめ有効化されている場合があります。
 
-```sql
+```text
 SQL> select POLICY_NAME, ENABLED_OPTION, ENTITY_NAME from AUDIT_UNIFIED_ENABLED_POLICIES;
 
 POLICY_NAME                    ENABLED_OPTION ENTITY_NAME      
@@ -52,7 +52,7 @@ COMMON_USER_LOGONS             BY USER        SYSBACKUP
 ここでは検証のため、SQLアクションを広めに捕捉する監査ポリシーを作成して、有効化します。
 `CREATE AUDIT POLICY` の構文や権限要件は SQL リファレンスを参照してください。
 
-```
+```sql
 CREATE AUDIT POLICY audit_all_actions ACTIONS ALL;
 ```
 
@@ -60,13 +60,13 @@ CREATE AUDIT POLICY audit_all_actions ACTIONS ALL;
 
 作成したポリシーをターゲットユーザーである `DBUSER_IAM` に適用します。これで `DBUSER_IAM` ユーザーの行動を監査できるようになりました。
 
-```
+```sql
 audit policy audit_all_actions by DBUSER_IAM;
 ```
 
 有効化できたか確認します。
 
-```sql
+```text
 -- DBUSER_IAM ユーザーに対して有効になっているかを確認する
 SQL> select POLICY_NAME, ENABLED_OPTION, ENTITY_NAME from AUDIT_UNIFIED_ENABLED_POLICIES;
 
@@ -94,7 +94,7 @@ COMMON_USER_LOGONS             BY USER        SYSBACKUP
 
 次のコマンドで直近の監査ログを20行取得します。
 
-```
+```sql
 select EVENT_TIMESTAMP_UTC, ACTION_NAME, DBUSERNAME, EXTERNAL_USERID, CLIENT_IDENTIFIER, USERHOST, OS_USERNAME, CLIENT_PROGRAM_NAME, SESSIONID, RETURN_CODE, SQL_TEXT 
   from UNIFIED_AUDIT_TRAIL 
   where DBUSERNAME = 'DBUSER_IAM'
@@ -102,7 +102,7 @@ select EVENT_TIMESTAMP_UTC, ACTION_NAME, DBUSERNAME, EXTERNAL_USERID, CLIENT_IDE
   fetch first 20 ROWS ONLY;
 ```
 
-```sql
+```text
 SQL> select
 2      EVENT_TIMESTAMP_UTC,
 3      ACTION_NAME,

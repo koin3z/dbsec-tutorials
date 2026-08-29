@@ -15,7 +15,7 @@ sidebar:
 
 HRユーザーで接続し、JOB_HISTORY_4OLS表を参照します。
 
-```sql
+```text
 SQL> conn hr/Welcome1#Welcome1#@localhost:1521/freepdb1
 Connected.
 SQL> show user
@@ -62,7 +62,7 @@ HRユーザーは最大レベルSENSから最小レベルINTLのすべてのデ�
 
 一方、SALES_APPユーザーで接続し、JOB_HISTORY_4OLS表を参照します。
 
-```sql
+```text
 SQL> conn sales_app/Welcome1#Welcome1#@localhost:1521/freepdb1
 Connected.
 SQL> show user

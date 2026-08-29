@@ -23,7 +23,7 @@ import { LinkCard, Aside } from '@astrojs/starlight/components';
 
 まず、HRスキーマのデフォルト表領域と、対象のデータファイルパスを確認します。
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 -- HRスキーマの表領域がUSERS表領域であることを確認
 SQL> select username, default_tablespace from dba_users where username ='HR';
 
@@ -43,7 +43,7 @@ USERS              /opt/oracle/oradata/FREE/FREEPDB1/users01.dbf
 
 TDEで暗号化されていない場合、データファイルに平文に近い情報が残っているため、`strings`コマンドを使用するとデータ文字列を拾うことができます。  
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 -- SQL*Plus / SQLcl では "!" でOSコマンドを実行できる
 SQL> !strings /opt/oracle/oradata/FREE/FREEPDB1/users01.dbf | head -n 20
 }|{z
@@ -75,7 +75,7 @@ Netherlands
 USERS表領域をオンライン（OPENのまま）で暗号化します。
 オンライン暗号化は `ALTER TABLESPACE ... ENCRYPTION ONLINE ... ENCRYPT` で実行できます。
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 -- 実行時間を計測
 SQL> set timing on
 
@@ -94,7 +94,7 @@ Elapsed: 00:00:05.886
 
 暗号化が完了したら、再度同じ`strings`コマンドでデータファイルの中身を確認します。
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 SQL> !strings /opt/oracle/oradata/FREE/FREEPDB1/users01.dbf | head -n 20
 }|{z
 W51YFREE
@@ -121,7 +121,7 @@ VJ|l_
 このように、データファイルが暗号化され、先程の内容が解読できない形式に変わったことを確認できます。  
 また、アプリケーション視点（SQL）では問題なくデータが参照できることを確認します。
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 SQL> select * from hr.jobs;
 
 JOB_ID        JOB_TITLE                             MIN_SALARY    MAX_SALARY
@@ -141,7 +141,7 @@ Elapsed: 00:00:00.015
 
 オンライン暗号化と同様、オンライン復号も行うことができます。
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 -- USERS表領域の復号
 SQL> alter tablespace users encryption online decrypt;
 
@@ -152,7 +152,7 @@ Elapsed: 00:00:06.064
 
 復号後、再び `strings` で文字列が読める形式に戻っていることを確認できます。
 
-```sql title="[PDB] SYSユーザー"
+```text title="[PDB] SYSユーザー"
 SQL> !strings /opt/oracle/oradata/FREE/FREEPDB1/users01.dbf | head -n 20
 }|{z
 W51YFREE

@@ -114,6 +114,96 @@ HR スキーマの `EMPLOYEES` 表を題材に、`SALARY` / `COMMISSION_PCT` 列
 
 </Steps>
 
+## 関連ブログと手順の差分
+
+このサイトのチュートリアルをベースに、Oracle Blogs で解説記事を公開しています。記事では扱うリダクション方式を増やし、手順を再構成しているため、主な差分を以下にまとめます。
+
+- [Oracle Data Redaction を実際に体感してみよう【#10】](https://blogs.oracle.com/oracle4engineer/database-security-oracle-data-redaction-tutorial-jp)
+
+概念の整理と `WHERE` 句・副問い合わせによる推測リスクの詳細は前回記事（#9）に対応し、このサイトでは [注意点](./note) ページに相当します。
+
+### 実行環境・実行ユーザー
+
+- ブログは **Oracle AI Database 26ai FREE** / PDB `freepdb1` を前提とし、ポリシーの作成・削除をすべて **`SYS`（AS SYSDBA）** で実行します。このサイトの手順は実行ユーザーを明示していません。
+- ブログでは `SALES_APP` の作成と権限付与を明示しています。表単位の付与です。
+
+  ```sql
+  create user sales_app identified by "<password>";
+  grant create session to sales_app;
+  grant select on hr.employees to sales_app;
+  ```
+
+- ハンズオン専用に作成した場合は `DROP USER sales_app CASCADE;` も実施します。
+
+### 扱うリダクション方式
+
+- このサイトは **完全リダクション（`DBMS_REDACT.FULL`）** のみを `SALARY` / `COMMISSION_PCT` に適用します。
+- ブログはこれに加えて、**部分リダクション（`PARTIAL`）を `PHONE_NUMBER`**、**正規表現リダクション（`REGEXP`）を `EMAIL`** に適用し、1 つのポリシー内で列ごとに方式を変えられることを確認します。
+
+### ポリシー名・`ALTER_POLICY` の書き方
+
+- ポリシー名: このサイトは `POL_REDCT_EMPLOYEES_SALARY`、ブログは複数種の列を含むため `POL_REDCT_EMP_INFO` に改称。
+- 列を追加する際、このサイトは `ALTER_POLICY(... column_name => ..., function_type => ...)`。ブログは **`action => DBMS_REDACT.ADD_COLUMN`** を明示します（既定動作ですが明示的）。
+
+### 部分リダクション（`PHONE_NUMBER`、ブログのみ）
+
+```sql
+BEGIN
+  DBMS_REDACT.ALTER_POLICY(
+    object_schema       => 'HR',
+    object_name         => 'EMPLOYEES',
+    policy_name         => 'POL_REDCT_EMP_INFO',
+    action              => DBMS_REDACT.ADD_COLUMN,
+    column_name         => 'PHONE_NUMBER',
+    function_type       => DBMS_REDACT.PARTIAL,
+    function_parameters => 'VFVVVFVVVFVVVV,V.VVV.VVV.VVVV,X,5,11'
+  );
+END;
+/
+```
+
+| `function_parameters` の指定 | 意味 |
+|---|---|
+| `VFVVVFVVVFVVVV` | 入力形式（1桁 + 区切り + 3桁 + 区切り + 3桁 + 区切り + 4桁） |
+| `V.VVV.VVV.VVVV` | 出力形式（`.` 区切りを保持） |
+| `X` | リダクション部分の置換文字 |
+| `5,11` | 数字部分の 5〜11 桁目をリダクション |
+
+- 部分リダクションは **固定形式** の値向けです。`HR.EMPLOYEES` の `PHONE_NUMBER` には `1.650.555.0135` と `44.1632.960000` が混在するため、形式の異なる行は `4..16.XXX.XXXX` のように崩れて表示されます。本番適用前にデータ形式の確認が必要です。
+
+### 正規表現リダクション（`EMAIL`、ブログのみ）
+
+```sql
+BEGIN
+  DBMS_REDACT.ALTER_POLICY(
+    object_schema          => 'HR',
+    object_name            => 'EMPLOYEES',
+    policy_name            => 'POL_REDCT_EMP_INFO',
+    action                 => DBMS_REDACT.ADD_COLUMN,
+    column_name            => 'EMAIL',
+    function_type          => DBMS_REDACT.REGEXP,
+    regexp_pattern         => '^(.).*$',
+    regexp_replace_string  => '\1XXXX',
+    regexp_position        => 1,
+    regexp_occurrence      => 0,
+    regexp_match_parameter => 'i'
+  );
+END;
+/
+```
+
+- 先頭 1 文字だけを残して伏せます（`SKING` → `SXXXX`、`LGARCIA` → `LXXXX`）。
+- パターンが値に一致しない、または置換しても値が変わらない場合は、**完全リダクション相当**（実値を返さない）の動作になります。
+
+### 確認用クエリ・ビュー参照
+
+- このサイトは `select first_name, salary, commission_pct from hr.employees;`（107 行）。ブログは `WHERE employee_id BETWEEN 135 AND 150`（16 行）に絞り、`EMAIL` / `PHONE_NUMBER` も含めて表示差を確認します。
+- ブログは `redaction_policies` / `redaction_columns` を `WHERE object_owner = 'HR' AND object_name = 'EMPLOYEES'` で絞り、`expression` / `enable` 列も確認します。ADD_POLICY 前に既存ポリシーが無いことも確認します。
+
+### 数値列の完全リダクション値
+
+- `NUMBER` 型に `FULL` を適用した場合の既定のリダクション値は `0` です。元データが `NULL` の行（`COMMISSION_PCT` の一部）は空欄のまま、値のある行が `0` になります。
+
 ## 補足ページ
 
 <CardGrid>

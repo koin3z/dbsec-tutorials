@@ -14,7 +14,7 @@ sidebar:
 ### HRユーザーで接続
 
 まず、HRユーザーとしてデータベースに接続し、 EMPLOYEES テーブルの first_name 、 salary 、 commission_pct 列を取得します。（実行結果は一部を抜粋しています）
-```sql
+```text
 $ sql hr/<password>@localhost:1521/freepdb1
 
 SQL> show con_name user
@@ -133,7 +133,7 @@ SALES_APPユーザーでは、 salary 列と commission_pct 列の値が全て 0
 
 ## Redactionポリシーの削除
 
-```
+```sql
 BEGIN
   DBMS_REDACT.DROP_POLICY (
     object_schema  => 'HR',
@@ -144,7 +144,7 @@ END;
 /
 ```
 
-```sql
+```text
 SQL> SELECT * FROM redaction_policies;
 
 no rows selected

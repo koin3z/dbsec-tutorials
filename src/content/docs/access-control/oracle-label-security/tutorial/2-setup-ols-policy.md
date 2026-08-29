@@ -141,7 +141,7 @@ END;
 READ_CONTROLを指定すると、ユーザーが後で実行するすべての問合せにポリシーが適用されます。  
 ポリシーを適用すると、JOB_HISTORY_4OLS表にラベル用の列が追加されていることがわかります。
 
-```sql
+```text
 SQL> desc hr.JOB_HISTORY_4OLS;
 
 Name              Null?       Type
@@ -158,7 +158,7 @@ OLS_LABEL_DEMO列が追加され、NUMBER型であることが確認できます
 
 OLSポリシーでの制御を有効化します。
 
-```
+```sql
 BEGIN
   SA_POLICY_ADMIN.ENABLE_TABLE_POLICY (
     policy_name => 'OLS_POL_DEMO',

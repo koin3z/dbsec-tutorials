@@ -64,12 +64,12 @@ $ oci iam region list --auth instance_principal
 
 管理者権限を持つユーザー（ADBでは ADMIN など）で接続し、インスタンスOCIDに紐づくグローバルユーザーを作成します。
 
-```
+```sql
 create user DBUSER_COMPUTE identified globally as 'IAM_PRINCIPAL_OCID=ocid1.instance.oc1.ap-sydney-1.yyyyyyyyyyyyyyyyy';
 ```
 
 また、接続できるように `create session`権限を付与します。
-```
+```sql
 grant create session to USER_COMPUTE;
 ```
 

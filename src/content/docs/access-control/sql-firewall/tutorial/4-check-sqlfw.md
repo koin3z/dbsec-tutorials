@@ -16,7 +16,7 @@ SQL Firewallの動作を確認し、許可リストに基づくSQLの許可・�
 
 現在の許可リストを確認し、登録されているSQLを把握します。
 
-```sql
+```text
 SQL> select ALLOWED_SQL_ID, SQL_TEXT from DBA_SQL_FIREWALL_ALLOWED_SQL;
 "ALLOWED_SQL_ID","SQL_TEXT"
 1               ,"SELECT DECODE (USER,:""SYS_B_0"",XS_SYS_CONTEXT (:""SYS_B_1"",:""SYS_B_2""),USER) FROM SYS.DUAL"
@@ -32,7 +32,7 @@ SQL> select ALLOWED_SQL_ID, SQL_TEXT from DBA_SQL_FIREWALL_ALLOWED_SQL;
 
 SALES_APPユーザーで接続し、許可リストに含まれるSQLを実行して成功することを確認します。
 
-```sql
+```text
 SQL> SELECT JOB_ID FROM HR.JOB_HISTORY;
 
 JOB_ID
@@ -53,7 +53,7 @@ DEPARTMENT_ID                                      NUMBER(4)
 
 次に許可リストにないSQLを実行します。
 
-```sql
+```text
 SQL> SELECT JOB_ID, EMPLOYEE_ID FROM HR.JOB_HISTORY;
 SELECT JOB_ID, EMPLOYEE_ID FROM HR.JOB_HISTORY
                                 *
@@ -69,7 +69,7 @@ Help: https://docs.oracle.com/error-help/db/ora-47605/
 
 違反ログを確認します。
 
-```sql
+```text
 SQL> set markup csv on
 SQL> select USERNAME, SQL_TEXT, IP_ADDRESS, CLIENT_PROGRAM, OS_USER from DBA_SQL_FIREWALL_VIOLATIONS;
 "USERNAME" ,"SQL_TEXT"                                     ,"IP_ADDRESS","CLIENT_PROGRAM"               ,"OS_USER"
@@ -82,7 +82,7 @@ SQL> select USERNAME, SQL_TEXT, IP_ADDRESS, CLIENT_PROGRAM, OS_USER from DBA_SQL
 
 SQL許可リストを確認し、IDを取得します。
 
-```sql
+```text
 SQL> select ALLOWED_SQL_ID,SQL_TEXT from DBA_SQL_FIREWALL_ALLOWED_SQL;
 "ALLOWED_SQL_ID","SQL_TEXT"
 1               ,"SELECT DECODE (USER,:""SYS_B_0"",XS_SYS_CONTEXT (:""SYS_B_1"",:""SYS_B_2""),USER) FROM SYS.DUAL"
@@ -111,7 +111,7 @@ END;
 
 指定したSQLが許可リストから削除され、実行できなくなっていることが分かります。
 
-```sql
+```text
 SQL> select ALLOWED_SQL_ID,SQL_TEXT from DBA_SQL_FIREWALL_ALLOWED_SQL;
 "ALLOWED_SQL_ID","SQL_TEXT"
 1               ,"SELECT DECODE (USER,:""SYS_B_0"",XS_SYS_CONTEXT (:""SYS_B_1"",:""SYS_B_2""),USER) FROM SYS.DUAL"
@@ -121,7 +121,7 @@ SQL> select ALLOWED_SQL_ID,SQL_TEXT from DBA_SQL_FIREWALL_ALLOWED_SQL;
 4               ,"SELECT JOB_ID FROM HR.JOB_HISTORY"
 ```
 
-```sql
+```text
 -- SALES_APPユーザーで実行
 SQL> DESCRIBE HR.JOB_HISTORY
 ERROR:

@@ -18,7 +18,7 @@ import iamLoginPush from '../../images/iam-login-push-mobile.png';
 
 PDBに接続して作業します。sysdbaで接続し、対象PDBへ切り替えます。
 
-```sql title="[CDB] SYS（sysdba）"
+```text title="[CDB] SYS（sysdba）"
 $ sql / as sysdba
 
 SQL> show pdbs
@@ -38,13 +38,13 @@ DB1110_PDB1
 
 ユーザー作成時に、OMAプッシュ要素としてメールアドレスを指定します。
 
-```
+```sql
 create user dbuser_mfa_oma identified by <password> and factor 'OMA_PUSH' as 'mail@example.com';
 
 grant create session to dbuser_mfa_oma;
 ```
 
-```sql title="[PDB] SYS（sysdba）"
+```text title="[PDB] SYS（sysdba）"
 SQL> create user if not exists DBUSER_MFA_OMA identified by <password> and FACTOR 'OMA_PUSH' as 'mail@example.com';
 
 Error starting at line : 1 in command -
@@ -56,7 +56,7 @@ Help: https://docs.oracle.com/error-help/db/ora-28470/
 
 <Aside type="note">
 既存ユーザーへMFA要素を追加する場合は ALTER USER を使用し、以下のコマンドを実行します。
-```
+```sql
 ALTER USER <user> ADD FACTOR 'OMA_PUSH' AS '<user.name@email.com>';
 ```
 </Aside>
@@ -86,7 +86,7 @@ ORA-28470: Failure to enroll the user for Oracle Mobile Authenticator (OMA) Push
 
 Identity Domainのユーザーを無事有効化できたら、まだDBユーザーは作成されていませんので再度DBユーザーを作成のコマンドを実行します。この際、接続権限も与えておきます。
 
-```
+```sql
 create user if not exists DBUSER_MFA_OMA identified by <password> and FACTOR 'OMA_PUSH' as '<user.name@email.com>';
 
 grant create session to DBUSER_MFA_OMA;
@@ -100,7 +100,7 @@ grant create session to DBUSER_MFA_OMA;
   <img src={iamLoginPush.src} alt="OMAプッシュ通知" style={{ width: '40%' }} />
 </p>
 
-```sql
+```text
 SQL> conn DBUSER_MFA_OMA/<password>@basedb26ai.dbprisbnt.koivcnsydpoc.oraclevcn.com:1521/DB1110_pdb1.dbprisbnt.koivcnsydpoc.oraclevcn.com
 Connected.
 

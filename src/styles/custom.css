@@ -200,10 +200,12 @@ html[data-has-hero] .sl-markdown-content .sl-heading-wrapper.level-h2:first-of-t
 }
 
 /* =========================================================
-   6. 画像クリックで拡大（lightbox）
+   6. 画像・図（inline SVG）クリックで拡大（lightbox）
    astro.config.mjs の head スクリプトが #img-zoom を生成する
    ========================================================= */
-.sl-markdown-content img {
+.sl-markdown-content img,
+.sl-markdown-content > svg,
+.sl-markdown-content svg[role="img"] {
   cursor: zoom-in;
 }
 .sl-markdown-content a img {
@@ -234,6 +236,18 @@ html[data-has-hero] .sl-markdown-content .sl-heading-wrapper.level-h2:first-of-t
   max-width: 100%;
   max-height: 100%;
   border-radius: 6px;
+  box-shadow: 0 12px 48px hsl(0 0% 0% / 0.5);
+  animation: img-zoom-in 0.15s ease;
+}
+/* inline SVG を拡大表示する場合。図は currentColor 基調なので、
+   暗いオーバーレイ上で見えるよう明色を与え、白カードに載せる。 */
+#img-zoom > svg {
+  max-width: 100%;
+  max-height: 100%;
+  padding: clamp(1rem, 3vw, 2rem);
+  border-radius: 6px;
+  background: hsl(0 0% 100%);
+  color: hsl(224 10% 12%);
   box-shadow: 0 12px 48px hsl(0 0% 0% / 0.5);
   animation: img-zoom-in 0.15s ease;
 }

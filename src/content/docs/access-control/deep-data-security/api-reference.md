@@ -110,19 +110,35 @@ REVOKE DATA ROLE employee_role FROM "ebaker";
 
 ### CREATE DATA GRANT
 
-テーブルに対するアクセス許可を定義します。アクセス対象の列（`AS SELECT` / `ALL COLUMNS EXCEPT` / 列指定）、対象行を絞るWHERE句、および付与先の Data Role を指定します。Data Grant は加算的に効きます。
+対象オブジェクト（テーブル / ビュー / マテリアライズドビュー）の行・列に対する CRUD（`SELECT` / `UPDATE` / `INSERT` / `DELETE`）操作を、**Data Role または END USER**（`TO` 句にカンマ区切りで複数・混在も可）に許可する名前付きポリシーです。通常の DB ユーザー・ロールは付与先にできません。Data Grant は加算的に効きます。
+
+`TO` を伴う通常の Data Grant は、行フィルタ（`WHERE`）と有効期間（`START TIME` / `END TIME`）を指定できます。親オブジェクトの権限から子オブジェクトの権限を導出する **クロステーブル Data Grant** は `WHEN ... GRANTED ON ... WHERE` で記述し、この形式では `TO` / `START TIME` / `END TIME` は指定できません（付与先は親オブジェクトの権限保持者で決まる）。
+
+```sql
+CREATE [OR REPLACE] DATA GRANT [IF NOT EXISTS] <schema>.<grant_name>
+  AS <privilege> [(<col> ... | ALL COLUMNS EXCEPT <col> ...)] [, <privilege> ...]
+  ON <schema>.<object>
+  { [WHERE <predicate>] TO <grantee> [, <grantee> ...]
+      [START TIME <ts>] [END TIME <ts>]
+  | WHEN <parent_privilege> [(<col> ...)] GRANTED ON <schema>.<parent_object>
+      WHERE <join_predicate> };
+-- <privilege> : SELECT | UPDATE | INSERT | DELETE
+-- <grantee>   : Data Role 名 または END USER 名
+```
+
+#### Data Role に付与する例
 
 ```sql
 -- 全列を SELECT できる（自分の行のみ）
-CREATE DATA GRANT hr.employees_own_record
+CREATE OR REPLACE DATA GRANT hr.employees_own_record
   AS SELECT
   ON hr.employees
   WHERE email = ORA_END_USER_CONTEXT.username
   TO employee_role;
 
--- SSN 列を除いた SELECT（部下の行）
-CREATE DATA GRANT hr.manager_direct_reports
-  AS SELECT (ALL COLUMNS EXCEPT ssn)
+-- SSN 列を除いた SELECT ＋ salary の UPDATE（部下の行）
+CREATE OR REPLACE DATA GRANT hr.manager_direct_reports
+  AS SELECT (ALL COLUMNS EXCEPT ssn), UPDATE (salary)
   ON hr.employees
   WHERE manager = ORA_END_USER_CONTEXT.username
   TO manager_role;
@@ -133,22 +149,70 @@ CREATE DATA GRANT hr.employees_basic_info
   ON hr.employees
   TO employee_role;
 
--- SELECT と一部列の UPDATE を許可
-CREATE DATA GRANT hr.employee_own_record_update
-  AS SELECT, UPDATE (phone)
-  ON hr.employees
-  WHERE email = ORA_END_USER_CONTEXT.username
-  TO employee_role;
-
--- 既存のものを置き換える
-CREATE OR REPLACE DATA GRANT hr.employees_own_record
-  AS SELECT
+-- SSN・SALARY を除く INSERT を許可（自分の行）
+CREATE DATA GRANT hr.employees_own_insert
+  AS INSERT (ALL COLUMNS EXCEPT ssn, salary)
   ON hr.employees
   WHERE email = ORA_END_USER_CONTEXT.username
   TO employee_role;
 ```
 
+#### END USER に直接付与する例
+
+Data Role を経由せず、特定の END USER だけに例外的なアクセスを与える場合に使います。
+
+```sql
+-- 単一の END USER に付与
+CREATE DATA GRANT hr.marvin_emp_access
+  AS SELECT
+  ON hr.employees
+  TO "manderson";
+
+-- Data Role と END USER を混在指定
+CREATE DATA GRANT hr.admin_access
+  AS SELECT, UPDATE (salary)
+  ON hr.employees
+  TO employee_role, manager_role, "manderson";
+```
+
+#### 時限付与（START TIME / END TIME）
+
+`START TIME` 省略時は即時有効、`END TIME` 省略時は削除まで有効です。
+
+```sql
+CREATE OR REPLACE DATA GRANT hr.temp_access_grant
+  AS SELECT
+  ON hr.employees
+  WHERE email = ORA_END_USER_CONTEXT.username
+  TO employee_role
+  START TIME TO_TIMESTAMP('2026-03-01 19:30:00', 'YYYY-MM-DD HH24:MI:SS')
+  END TIME   TO_TIMESTAMP('2026-09-01 19:30:00', 'YYYY-MM-DD HH24:MI:SS');
+```
+
+#### クロステーブル Data Grant（親権限からの導出）
+
+親オブジェクトへの権限を持つ利用者に対し、結合条件（`WHERE` 必須）で対応する子オブジェクトの行への権限を導出します。`TO` 句を持たず、付与先は親側の Data Grant で決まります。
+
+```sql
+-- 親: PENDING の注文に SELECT を付与
+CREATE OR REPLACE DATA GRANT oe.customers_orders
+  AS SELECT
+  ON oe.orders
+  WHERE oe.orders.status = 'PENDING'
+  TO sales_rep_role;
+
+-- 子: oe.orders に SELECT を持つ利用者へ、対応する oe.order_items の行の SELECT を導出
+CREATE OR REPLACE DATA GRANT oe.order_items_by_orders
+  AS SELECT
+  ON oe.order_items
+  WHEN SELECT GRANTED ON oe.orders
+  WHERE oe.order_items.order_id = oe.orders.order_id;
+```
+
+`OR REPLACE` では `ON` 句の対象オブジェクトは変更できません（`privilege_list` / `TO` / `WHERE` / `START TIME` / `END TIME` は変更可）。
+
 - [CREATE DATA GRANT - SQL言語リファレンス](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/create-data-grant.html)
+- [Create Data Grants - Deep Data Security Guide](https://docs.oracle.com/en/database/oracle/oracle-database/26/ddscg/create-data-grants.html)
 
 ---
 

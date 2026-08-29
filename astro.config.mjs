@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import rehypeExternalLinks from 'rehype-external-links';
 
 // https://astro.build/config
 // ...existing code...
@@ -10,6 +11,23 @@ export default defineConfig({
   },
   site: 'https://koi141.github.io',
   base: '/dbsec-tutorials',
+  markdown: {
+    // 絶対 URL（外部サイト）のリンクを新規タブで開く。
+    // サイト内リンクは相対パスなので対象外。
+    rehypePlugins: [
+      [
+        rehypeExternalLinks,
+        {
+          target: '_blank',
+          rel: ['noopener', 'noreferrer'],
+          test: (node) => {
+            const href = node.properties && node.properties.href;
+            return typeof href === 'string' && !href.includes('koi141.github.io');
+          },
+        },
+      ],
+    ],
+  },
   integrations: [
     starlight({
       title: 'OraDBSec',
@@ -41,19 +59,33 @@ export default defineConfig({
       o = document.createElement('div');
       o.id = 'img-zoom';
       o.setAttribute('role', 'dialog');
-      o.setAttribute('aria-label', '拡大画像');
-      o.innerHTML = '<img alt="">';
+      o.setAttribute('aria-label', '拡大表示');
       o.addEventListener('click', hide);
       document.body.appendChild(o);
       return o;
     }
-    function show(src, alt) {
+    function open(node) {
       var o = overlay();
-      var im = o.firstChild;
-      im.src = src;
-      im.alt = alt || '';
+      o.innerHTML = '';
+      o.appendChild(node);
       o.classList.add('open');
       document.documentElement.classList.add('img-zoom-lock');
+    }
+    function showImage(src, alt) {
+      var im = new Image();
+      im.src = src;
+      im.alt = alt || '';
+      open(im);
+    }
+    function showSvg(svg) {
+      var c = svg.cloneNode(true);
+      c.removeAttribute('width');
+      c.removeAttribute('height');
+      c.style.maxWidth = '100%';
+      c.style.maxHeight = '100%';
+      c.style.width = 'auto';
+      c.style.height = 'auto';
+      open(c);
     }
     function hide() {
       var o = document.getElementById('img-zoom');
@@ -62,10 +94,15 @@ export default defineConfig({
     }
     document.addEventListener('click', function (e) {
       var t = e.target;
-      if (!t || t.tagName !== 'IMG') return;
-      if (!t.closest('.sl-markdown-content')) return;
-      if (t.closest('a')) return;
-      show(t.currentSrc || t.src, t.alt);
+      if (!t || !t.closest || t.closest('#img-zoom')) return;
+      var img = t.closest('.sl-markdown-content img');
+      if (img && !img.closest('a')) { showImage(img.currentSrc || img.src, img.alt); return; }
+      var svg = t.closest('svg');
+      if (svg && svg.closest('.sl-markdown-content') && !svg.closest('a, button')
+          && svg.getAttribute('aria-hidden') !== 'true'
+          && svg.getBoundingClientRect().width >= 150) {
+        showSvg(svg);
+      }
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') hide();

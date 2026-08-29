@@ -1,6 +1,6 @@
 ---
 title: Deep Data Security
-description: Oracle Database 26ai の新機能 Deep Data Security の概要と、エンドユーザーコンテキストに基づく行・列レベルアクセス制御の仕組みを解説します。
+description: Oracle Database 26ai の新機能 Deep Data Security の概要と，エンドユーザーコンテキストに基づく行・列レベルアクセス制御の仕組みを解説します。
 sidebar:
   label: 概要
   order: 0
@@ -9,46 +9,102 @@ import { Steps, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 ## Deep Data Security とは
 
-Oracle AI Database 26ai のセキュリティ新機能として **Deep Data Security（DDS）** が GA されました。
+Oracle AI Database 26ai のセキュリティ新機能として **Deep Data Security（略称 Deep Sec）** が追加されました。
 
 この機能の特徴は「**エンドユーザーのコンテキストをベースとしたアクセス制御**」をデータベース層で実現することです。
-通常アプリケーション側で行っていた行・列レベルのアクセス制御をデータベースへ移譲することで、AI エージェントのようなアドホックなクエリに対するデータ保護をより強化できます。
+通常アプリケーション側で行っていた行・列レベルのアクセス制御をデータベースへ移譲することで，AI エージェントのようなアドホックなクエリに対するデータ保護をより強化できます。
 
-また、OCI IAM Identity Domains や Microsoft Entra ID と連携することで、アイデンティティ・プロバイダーのグループ情報を Data Role として引き継ぎ、認証・接続・アクセス制御までを一気通貫で実装することも可能です。
+また，OCI IAM Identity Domains や Microsoft Entra ID と連携することで，アイデンティティ・プロバイダーのグループ情報を **Data Role** として引き継ぎ，認証・接続・アクセス制御までを一気通貫で実装することも可能です。
 
 ## 仕組みの概要
 
-```
-[ エンドユーザー ]                [ Oracle Database 26ai ]
-       |                                    |
-       |── 接続（パスワード / IAM トークン）──▶|
-       |                                    | 1. エンドユーザーセキュリティコンテキストを確立
-       |                                    |    ORA_END_USER_CONTEXT.username = "manderson"
-       |                                    |    Data Role: employee_role / manager_role 有効化
-       |                                    |
-       |──── SELECT * FROM hr.employees ───▶|
-       |                                    | 2. Data Grant を評価
-       |                                    |    employee_role: WHERE email = 'manderson'
-       |                                    |    manager_role:  WHERE manager = 'manderson'
-       |                                    |                   （SSN 列は除外）
-       |                                    |
-       |◀──── フィルタ済みの行・列のみ返却 ────|
-```
+以下が Deep Sec におけるフローの概要です。
 
-接続後、セッションは `XS$NULL` という特殊な DB ユーザーとして扱われます。
-実際のエンドユーザー情報は `ORA_END_USER_CONTEXT` で参照できます。
+<svg
+  viewBox="0 0 820 430"
+  width="820"
+  height="430"
+  role="img"
+  aria-labelledby="dds-flow-title dds-flow-desc"
+  style="max-width:100%;height:auto;margin-block:1.5rem;font-family:var(--sl-font, ui-sans-serif, system-ui, sans-serif)"
+>
+  <title id="dds-flow-title">Deep Data Security の処理フロー</title>
+  <desc id="dds-flow-desc">
+    エンドユーザーが接続するとセキュリティコンテキストが確立され，SELECT 実行時に Data Grant が評価されて，フィルタ済みの行・列だけが返却される。
+  </desc>
+
+  <defs>
+    <marker id="dds-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="currentColor" />
+    </marker>
+  </defs>
+
+  <g fill="currentColor" stroke="none">
+    <rect x="20" y="16" width="180" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="110" y="41" text-anchor="middle" font-size="14" font-weight="600">エンドユーザー</text>
+
+    <rect x="410" y="16" width="240" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="530" y="41" text-anchor="middle" font-size="13.5" font-weight="600">Oracle AI Database 26ai</text>
+  </g>
+
+  <g stroke="currentColor" stroke-opacity="0.35" stroke-dasharray="4 4">
+    <line x1="110" y1="56" x2="110" y2="410" />
+    <line x1="530" y1="56" x2="530" y2="410" />
+  </g>
+
+  <g fill="currentColor" font-size="13">
+    <text x="116" y="86">接続（パスワード / ID トークン）</text>
+  </g>
+  <line x1="110" y1="96" x2="530" y2="96" stroke="currentColor" stroke-width="1.5" marker-end="url(#dds-arrow)" />
+
+  <g>
+    <rect x="320" y="110" width="480" height="96" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-opacity="0.3" />
+    <text x="338" y="133" fill="currentColor" font-size="13" font-weight="600">① エンドユーザーセキュリティコンテキストを確立</text>
+    <text x="338" y="155" fill="currentColor" fill-opacity="0.85" font-size="12" font-family="var(--sl-font-mono, ui-monospace, monospace)">セッションは XS$NULL，実体は ORA_END_USER_CONTEXT で参照</text>
+    <text x="338" y="174" fill="currentColor" fill-opacity="0.85" font-size="12" font-family="var(--sl-font-mono, ui-monospace, monospace)">ORA_END_USER_CONTEXT.username = "manderson"</text>
+    <text x="338" y="194" fill="currentColor" font-size="12.5">Data Role: employee_role / manager_role を有効化</text>
+  </g>
+
+  <g fill="currentColor" font-size="13">
+    <text x="116" y="240" font-family="var(--sl-font-mono, ui-monospace, monospace)">SELECT * FROM hr.employees</text>
+  </g>
+  <line x1="110" y1="250" x2="530" y2="250" stroke="currentColor" stroke-width="1.5" marker-end="url(#dds-arrow)" />
+
+  <g>
+    <rect x="320" y="264" width="480" height="104" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-opacity="0.3" />
+    <text x="338" y="287" fill="currentColor" font-size="13" font-weight="600">② Data Grant を評価（加算的に合算）</text>
+    <text x="338" y="309" fill="currentColor" fill-opacity="0.85" font-size="12" font-family="var(--sl-font-mono, ui-monospace, monospace)">employee_role → WHERE email = 'manderson'</text>
+    <text x="338" y="328" fill="currentColor" fill-opacity="0.85" font-size="12" font-family="var(--sl-font-mono, ui-monospace, monospace)">manager_role  → WHERE manager = 'manderson'</text>
+    <text x="338" y="350" fill="currentColor" font-size="12.5">manager_role は SSN 列を除外</text>
+  </g>
+
+  <g fill="currentColor" font-size="13">
+    <text x="524" y="392" text-anchor="end">③ フィルタ済みの行・列のみ返却</text>
+  </g>
+  <line x1="530" y1="402" x2="110" y2="402" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#dds-arrow)" />
+</svg>
+
+上図の流れを順に説明します。
+
+1. **接続とセキュリティコンテキストの確立** — エンドユーザーがローカルパスワードまたはアイデンティティプロバイダーから発行されるトークンで接続すると，その識別情報と保持する Data Role がセッションに紐付き，エンドユーザーセキュリティコンテキストが確立されます。このときセッションは `XS$NULL` という特殊な DB ユーザーとして扱われ，実際のエンドユーザー情報は `ORA_END_USER_CONTEXT` から参照します。
+
+2. **Data Grant の評価** — エンドユーザーが `SELECT` などを実行すると，有効な Data Role に紐付く Data Grant がデータベース内で評価されます。各 Data Grant の `WHERE` 句が行フィルタ，`ALL COLUMNS EXCEPT` が列除外として適用され，複数ロールを持つ場合は参照できる行・列がロールごとに加算されます。
+
+3. **フィルタ済みの結果を返却** — 評価結果に基づき，そのエンドユーザーがアクセスを許可された行・列だけがクエリ結果として返されます。アプリケーション側でフィルタ処理を実装しなくても，データベース層でエンドユーザー単位のアクセス制御が完結します。
 
 ## 主要コンポーネント
 
 | コンポーネント | 説明 |
 |---|---|
-| **END USER** | アクセス制御の主体。ローカルパスワードまたは IAM トークンで接続する |
-| **Data Role** | END USER が保持するデータアクセス権の単位。IAM グループへのマッピングも可能 |
-| **Data Grant** | テーブル単位のアクセス許可定義。`WHERE` 句による行フィルタと列除外（`ALL COLUMNS EXCEPT`）を指定する |
+| **END USER** | アクセス制御の主体。ローカルパスワードまたはアイデンティティプロバイダーより発行されるトークンで接続する。通常の DB ユーザーではなく，`CREATE END USER` コマンドによって作成する |
+| **Data Role** | Data Grant をまとめた名前付きコレクション。単体ではアクセス権を持たず，END USER やアプリケーション ID に付与して使う。OCI IAM グループ / Entra ID ロールへの外部マッピングも可能 |
+| **Data Grant** | テーブル単位のアクセス許可定義。許可する操作（`SELECT` / `UPDATE` / `INSERT` / `DELETE`）・行フィルタ（`WHERE` 句）・列除外（`ALL COLUMNS EXCEPT`）を指定し，**Data Role または END USER** に付与する |
 | **ORA_END_USER_CONTEXT** | エンドユーザーのセッション情報を保持する JSON コンテキスト。Data Grant の `WHERE` 句や SQL 内で参照できる |
 | **Application Identity** | OAuth クライアント ID に紐付くアプリケーション識別子。アプリ自体への Data Role 付与に使用する |
 
 ## Data Grant の構造
+
+アクセス制御の単位は Data Grant と呼ばれます。この Data Grant は例えば以下のように定義されます。
 
 ```sql
 CREATE DATA GRANT <schema>.<grant_name>
@@ -59,7 +115,25 @@ CREATE DATA GRANT <schema>.<grant_name>
   TO <data_role>;
 ```
 
-Data Grant は**加算的**に機能します。END USER が複数の Data Role を持つ場合、それぞれの Data Grant で参照できる行・列が合算されます。
+Data Grant は**加算的**に機能します。END USER が複数の Data Role を持つ場合，それぞれの Data Grant で参照できる行・列が合算されます。
+
+## Data Role と Data Grant の関係
+
+Deep Sec のアクセス制御は **END USER / Data Role / Data Grant** の 3 階層で構成されます。
+
+| オブジェクト | 役割 | 単体でのアクセス権 |
+|---|---|---|
+| **END USER** | 認証された利用者。スキーマやオブジェクト権限は直接持たない | なし |
+| **Data Role** | Data Grant をまとめた名前付きコレクション | **なし**（Data Grant を関連付けて初めて意味を持つ） |
+| **Data Grant** | 対象テーブルの行（`WHERE`）・列（`ALL COLUMNS EXCEPT` / 列リスト）・操作（`SELECT` / `UPDATE` / `INSERT` / `DELETE`）を定義 | これがアクセス権の実体 |
+
+- **付与の向き** — `GRANT DATA ROLE <role> TO <end_user>` で END USER（またはアプリケーション ID）に Data Role を付与します。Data Grant は `CREATE DATA GRANT ... TO <grantee>` の `<grantee>` に **Data Role・END USER のどちらでも**（カンマ区切りで複数・混在も）指定できます。Data Role にまとめるのが基本で，END USER への直接付与は個別の例外を与えるためのショートカットです。
+- **有効化** — END USER が認証されると，付与された Data Role が自動的に有効化されます。外部マップ Data Role（IAM グループ / Entra ロール）は，トークンの claim に該当グループが含まれていれば `GRANT` なしで自動有効化されます。
+- **評価フロー** — ① 認証済み END USER の Data Role を有効化 → ② 有効な Data Role（＋ END USER への直接付与分）に紐づく Data Grant を収集 → ③ 各 Data Grant の行・列条件を述語として SQL に自動書き換え → ④ 認可された行・列だけを返却。
+- **加算的（和集合）** — 複数の Data Role / Data Grant が該当する場合，参照・操作できる行と列はそれらの **和集合** になります。ある Data Grant で除外された列でも，別の Data Grant が同じ行に対してその列を許可していれば参照できます（例: `manderson` は自分の行では SSN を見られるが，部下の行の SSN は見られない）。
+- **時限付与** — Data Grant には `START TIME` / `END TIME` を指定して有効期間を限定することもできます。
+
+一言でまとめると **END USER ─（付与）→ Data Role ─（内包）→ Data Grant ─（定義）→ 行 / 列 / 操作** という連鎖で，END USER が実際に参照できるデータは「有効なすべての Data Grant の合算結果」になります。
 
 ## このサイトで扱う内容
 
@@ -67,11 +141,11 @@ Data Grant は**加算的**に機能します。END USER が複数の Data Role 
 
 1. [`ローカル・エンドユーザーによる Deep Data Security`](./tutorial/localenduser-dds)
 
-    ローカルパスワード認証のエンドユーザーを作成し、Data Role・Data Grant を設定します。`manderson`（manager / employee 両ロール）と `ebaker`（employee のみ）で参照できるデータが異なることを確認します。
+    ローカルパスワード認証のエンドユーザーを作成し，Data Role・Data Grant を設定します。`manderson`（manager / employee 両ロール）と `ebaker`（employee のみ）で参照できるデータが異なることを確認します。
 
 2. [`OCI IAM Identity Domains との連携`](./tutorial/oci-iam-dds)
 
-    OCI IAM の機密アプリケーション・カスタム claim・グループを設定し、IAM グループを Data Role にマッピングします。IAM トークンで接続し、グループに応じたアクセス制御が機能することを確認します。
+    OCI IAM の機密アプリケーション・カスタム claim・グループを設定し，IAM グループを Data Role にマッピングします。IAM トークンで接続し，グループに応じたアクセス制御が機能することを確認します。
 
 </Steps>
 

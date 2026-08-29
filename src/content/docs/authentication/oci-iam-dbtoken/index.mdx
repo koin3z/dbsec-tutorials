@@ -29,28 +29,58 @@ IAM ユーザーを使う点や、グローバルユーザー・グローバル�
 
 ## 仕組みの概要
 
-```
-[ OCI IAM ]           [ クライアント ]        [ Oracle Database ]
-    |                      |                        |
-    |─ iamuser-hr-admin-01 |                        |
-    |─ iamuser-hr-dev-01   |                        |
-    |                      |                        |
-    |─────────── 1. DBトークン生成要求 ──────────────▶|
-    |      (APIキー / インスタンスプリンシパル)        |
-    |◀────────────── DBトークン(JWT) ────────────────|
-    |            ~/.oci/db-token/token              |
-    |                      |                        |
-    |                      |──────── 2. 接続 ───────▶|
-    |                      |    (OCI_TOKEN + TLS)   |
-    |                      |                        |
-    |                      |                        | 3. トークン検証
-    |                      |                        |   + IAMグループ照合
-    |                      |                        | 4. DBユーザー接続
-    |                      |                        |    (DBUSER_IAM)
-    |                      |                        | 5. ロール付与
-    |                      |                        |    (GLROLE_HR_ADMIN / DEV)
-    |                      |                        |
-```
+<svg
+  viewBox="0 0 826 320"
+  width="826"
+  height="320"
+  role="img"
+  aria-labelledby="iamtok-flow-title iamtok-flow-desc"
+  style="max-width:100%;height:auto;margin-block:1.5rem;font-family:var(--sl-font, ui-sans-serif, system-ui, sans-serif)"
+>
+  <title id="iamtok-flow-title">OCI IAM DBトークン認証のフロー</title>
+  <desc id="iamtok-flow-desc">
+    クライアントが OCI IAM から有効期限つきの DBトークン（JWT）を取得し、TOKEN_AUTH=OCI_TOKEN と TLS で Oracle Database に接続する。DB はトークンを検証し、IAM グループに応じてグローバルユーザー DBUSER_IAM とグローバルロールを適用する。
+  </desc>
+
+  <defs>
+    <marker id="iamtok-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="currentColor" />
+    </marker>
+  </defs>
+
+  <g fill="currentColor" font-size="12.5" font-weight="600">
+    <rect x="30" y="14" width="160" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="110" y="38" text-anchor="middle">OCI IAM</text>
+    <rect x="320" y="14" width="160" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="400" y="38" text-anchor="middle">クライアント</text>
+    <rect x="560" y="14" width="220" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="670" y="38" text-anchor="middle">Oracle Database</text>
+  </g>
+
+  <g stroke="currentColor" stroke-opacity="0.35" stroke-dasharray="4 4">
+    <line x1="110" y1="54" x2="110" y2="300" />
+    <line x1="400" y1="54" x2="400" y2="300" />
+    <line x1="670" y1="54" x2="670" y2="300" />
+  </g>
+
+  <g fill="currentColor" font-size="12" text-anchor="middle">
+    <text x="255" y="84">① DBトークン生成要求（APIキー / インスタンスプリンシパル）</text>
+    <text x="255" y="118">② DBトークン（JWT）を発行 → ~/.oci/db-token/token</text>
+    <text x="535" y="156">③ 接続（TOKEN_AUTH=OCI_TOKEN + TLS）</text>
+  </g>
+
+  <line x1="400" y1="92" x2="110" y2="92" stroke="currentColor" stroke-width="1.5" marker-end="url(#iamtok-arrow)" />
+  <line x1="110" y1="126" x2="400" y2="126" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#iamtok-arrow)" />
+  <line x1="400" y1="164" x2="670" y2="164" stroke="currentColor" stroke-width="1.5" marker-end="url(#iamtok-arrow)" />
+
+  <g>
+    <rect x="470" y="180" width="346" height="104" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-opacity="0.3" />
+    <text x="486" y="202" fill="currentColor" font-size="12" font-weight="600">Oracle Database 内部の処理</text>
+    <text x="486" y="226" fill="currentColor" fill-opacity="0.9" font-size="11.5">④ トークンを検証し IAM グループを照合</text>
+    <text x="486" y="250" fill="currentColor" fill-opacity="0.9" font-size="11.5">⑤ グローバルユーザー DBUSER_IAM として接続</text>
+    <text x="486" y="274" fill="currentColor" fill-opacity="0.9" font-size="10">⑥ グローバルロール付与（GLROLE_HR_ADMIN / GLROLE_HR_DEV）</text>
+  </g>
+</svg>
 
 1. OCI CLI で `oci iam db-token get` を実行し、DBトークンと対応する秘密鍵を取得する
 2. `tnsnames.ora` に `TOKEN_AUTH=OCI_TOKEN` を追加し、`/@<接続名>` で接続する

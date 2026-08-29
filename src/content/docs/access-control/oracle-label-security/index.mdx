@@ -27,20 +27,68 @@ Oracle Label Security（OLS）は、データ行に**ラベル**を付与し、�
 
 ユーザーに設定した**ユーザーラベル**と、データ行に付与した**データラベル**を照合してアクセス可否を判断します。
 
-```
-ポリシー: OLS_POL_DEMO
-レベル定義:  SENSITIVE(4000) > CONFIDENTIAL(3000) > INTERNAL(2000)
+<svg
+  viewBox="0 0 760 300"
+  width="760"
+  height="300"
+  role="img"
+  aria-labelledby="ols-label-title ols-label-desc"
+  style="max-width:100%;height:auto;margin-block:1.5rem;font-family:var(--sl-font, ui-sans-serif, system-ui, sans-serif)"
+>
+  <title id="ols-label-title">Oracle Label Security のラベル照合</title>
+  <desc id="ols-label-desc">
+    データ行のラベルレベルと、ユーザーラベルの max_level / min_level の範囲を照合する。HR は SENSITIVE〜INTERNAL の全レベルを参照でき、SALES_APP は CONFIDENTIAL〜INTERNAL のみ参照でき SENSITIVE 行は非表示になる。
+  </desc>
 
-データ行のラベル:
-  IT_PROG   → INTERNAL(200)
-  AC_MGR    → SENSITIVE(400)   ← 機密性が高い
-  SA_REP    → CONFIDENTIAL(300)
+  <g fill="currentColor">
+    <text x="30" y="24" font-size="12.5" font-weight="600">ポリシー: OLS_POL_DEMO</text>
+    <text x="110" y="48" font-size="9.5" fill-opacity="0.7" text-anchor="middle">機密レベル（Level）</text>
+    <text x="365" y="48" font-size="9.5" fill-opacity="0.7" text-anchor="middle">データ行のラベル</text>
+    <text x="530" y="24" font-size="12" font-weight="600" text-anchor="middle">HR</text>
+    <text x="530" y="40" font-size="9" fill-opacity="0.7" text-anchor="middle">max SENS / min INTL</text>
+    <text x="660" y="24" font-size="12" font-weight="600" text-anchor="middle">SALES_APP</text>
+    <text x="660" y="40" font-size="9" fill-opacity="0.7" text-anchor="middle">max CONF / min INTL</text>
+  </g>
 
-ユーザーラベル（max_level / min_level）:
-  HR        → max: SENS  / min: INTL  → 全データ参照可（SENS/CONF/INTL）
-  SALES_APP → max: CONF  / min: INTL  → CONF/INTL のみ参照可
-                                        SENS（AC_MGR, SA_MAN）は非表示
-```
+  <g>
+    <rect x="30" y="56" width="420" height="66" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-opacity="0.3" />
+    <rect x="30" y="122" width="420" height="66" fill="currentColor" fill-opacity="0.08" stroke="currentColor" stroke-opacity="0.3" />
+    <rect x="30" y="188" width="420" height="66" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-opacity="0.3" />
+  </g>
+
+  <g fill="currentColor" font-size="13" font-weight="600">
+    <text x="46" y="90">SENSITIVE</text>
+    <text x="46" y="156">CONFIDENTIAL</text>
+    <text x="46" y="222">INTERNAL</text>
+  </g>
+  <g fill="currentColor" font-size="10" fill-opacity="0.65">
+    <text x="46" y="106">(4000) — 最も機密</text>
+    <text x="46" y="172">(3000)</text>
+    <text x="46" y="238">(2000)</text>
+  </g>
+
+  <g font-family="var(--sl-font-mono, ui-monospace, monospace)" font-size="11">
+    <rect x="300" y="76" width="130" height="26" rx="13" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-opacity="0.35" />
+    <text x="365" y="93" text-anchor="middle" fill="currentColor">AC_MGR</text>
+    <rect x="300" y="142" width="130" height="26" rx="13" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-opacity="0.35" />
+    <text x="365" y="159" text-anchor="middle" fill="currentColor">SA_REP</text>
+    <rect x="300" y="208" width="130" height="26" rx="13" fill="currentColor" fill-opacity="0.1" stroke="currentColor" stroke-opacity="0.35" />
+    <text x="365" y="225" text-anchor="middle" fill="currentColor">IT_PROG</text>
+  </g>
+
+  <line x1="475" y1="54" x2="475" y2="256" stroke="currentColor" stroke-opacity="0.2" />
+
+  <g font-size="15" text-anchor="middle" fill="currentColor">
+    <text x="530" y="94">○</text>
+    <text x="530" y="160">○</text>
+    <text x="530" y="226">○</text>
+    <text x="660" y="94" fill-opacity="0.4">×</text>
+    <text x="660" y="160">○</text>
+    <text x="660" y="226">○</text>
+  </g>
+
+  <text x="30" y="278" fill="currentColor" font-size="10" fill-opacity="0.7">○ = 参照可　／　× = ユーザーラベルの範囲外で非表示（SENSITIVE 行は SALES_APP から見えない）</text>
+</svg>
 
 テーブルにポリシーを適用すると、ラベルを格納する **NUMBER 型のラベル列**が自動的に追加されます。
 ラベルの設定は `CHAR_TO_LABEL`、参照時の変換は `LABEL_TO_CHAR` 関数を使います。

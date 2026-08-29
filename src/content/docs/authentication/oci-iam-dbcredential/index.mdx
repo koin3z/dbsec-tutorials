@@ -26,18 +26,80 @@ OCI コンソールへのログインパスワードとは独立しているた�
 IAM ユーザーは **グローバルユーザー（Global User）** を経由して DB に接続します。
 同一グローバルユーザーに複数の IAM ユーザーをマッピングしつつ、**グローバルロール（Global Role）** で権限を分離するのがポイントです。
 
-```
-OCI IAM
-  ├── iamuser-hr-admin-01 → iamgroup-hr-admin ──────────────────────────────────┐
-  ├── iamuser-hr-dev-01   → iamgroup-hr-dev ─────────────────────────────────┐  │
-  └── iamgroup-connect    → 両ユーザーが所属 ──────────────────────────────┐  │  │
-                                                                          │  │  │
-                                ↓                                         │  │  │
-Oracle Database                                                           │  │  │
-  ├── DBUSER_IAM        ← IAM_GROUP_NAME=iamgroup-connect （接続ユーザー）─┘  │  │
-  ├── GLROLE_HR_DEV     ← IAM_GROUP_NAME=iamgroup-hr-dev （参照権限のみ）┘ ───┘  │
-  └── GLROLE_HR_ADMIN   ← IAM_GROUP_NAME=iamgroup-hr-admin（admin権限）──────────┘ 
-```
+<svg
+  viewBox="0 0 860 360"
+  width="860"
+  height="360"
+  role="img"
+  aria-labelledby="iam-map-title iam-map-desc"
+  style="max-width:100%;height:auto;margin-block:1.5rem;font-family:var(--sl-font, ui-sans-serif, system-ui, sans-serif)"
+>
+  <title id="iam-map-title">IAM ユーザー・グループと DB グローバルユーザー／ロールのマッピング</title>
+  <desc id="iam-map-desc">
+    2 人の IAM ユーザーは共通グループ iamgroup-connect 経由で同一のグローバルユーザー DBUSER_IAM に接続し、所属する業務グループに応じて GLROLE_HR_ADMIN または GLROLE_HR_DEV が適用される。
+  </desc>
+
+  <defs>
+    <marker id="iam-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="currentColor" />
+    </marker>
+  </defs>
+
+  <rect x="10" y="50" width="524" height="292" rx="8" fill="currentColor" fill-opacity="0.035" stroke="currentColor" stroke-opacity="0.2" />
+  <rect x="556" y="50" width="294" height="292" rx="8" fill="currentColor" fill-opacity="0.035" stroke="currentColor" stroke-opacity="0.2" />
+  <g fill="currentColor" font-size="12.5" font-weight="600">
+    <text x="24" y="42">OCI IAM</text>
+    <text x="570" y="42">Oracle Database</text>
+  </g>
+
+  <g stroke="currentColor" stroke-opacity="0.45" stroke-width="1.25" fill="none" marker-end="url(#iam-arrow)">
+    <path d="M196 110 L262 96" />
+    <path d="M196 110 L262 176" />
+    <path d="M196 250 L262 256" />
+    <path d="M196 250 L262 176" />
+  </g>
+
+  <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#iam-arrow)">
+    <line x1="424" y1="96" x2="556" y2="96" />
+    <line x1="424" y1="176" x2="556" y2="176" />
+    <line x1="424" y1="256" x2="556" y2="256" />
+  </g>
+  <g fill="currentColor" fill-opacity="0.7" font-size="9.5" text-anchor="middle" font-family="var(--sl-font-mono, ui-monospace, monospace)">
+    <text x="490" y="90">IAM_GROUP_NAME=</text>
+    <text x="490" y="170">IAM_GROUP_NAME=</text>
+    <text x="490" y="250">IAM_GROUP_NAME=</text>
+  </g>
+
+  <g font-family="var(--sl-font-mono, ui-monospace, monospace)" font-size="11.5">
+    <rect x="26" y="92" width="170" height="36" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="111" y="114" text-anchor="middle" fill="currentColor">iamuser-hr-admin-01</text>
+    <rect x="26" y="232" width="170" height="36" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="111" y="254" text-anchor="middle" fill="currentColor">iamuser-hr-dev-01</text>
+  </g>
+
+  <g font-family="var(--sl-font-mono, ui-monospace, monospace)" font-size="11.5">
+    <rect x="262" y="78" width="162" height="36" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="343" y="100" text-anchor="middle" fill="currentColor">iamgroup-hr-admin</text>
+    <rect x="262" y="158" width="162" height="36" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="343" y="180" text-anchor="middle" fill="currentColor">iamgroup-connect</text>
+    <rect x="262" y="238" width="162" height="36" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="343" y="260" text-anchor="middle" fill="currentColor">iamgroup-hr-dev</text>
+  </g>
+
+  <g>
+    <rect x="556" y="72" width="272" height="48" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="572" y="93" fill="currentColor" font-size="11.5" font-family="var(--sl-font-mono, ui-monospace, monospace)">GLROLE_HR_ADMIN</text>
+    <text x="572" y="110" fill="currentColor" fill-opacity="0.7" font-size="10">グローバルロール — admin 権限</text>
+
+    <rect x="556" y="152" width="272" height="48" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="572" y="173" fill="currentColor" font-size="11.5" font-family="var(--sl-font-mono, ui-monospace, monospace)">DBUSER_IAM</text>
+    <text x="572" y="190" fill="currentColor" fill-opacity="0.7" font-size="10">グローバルユーザー — 共通の接続ユーザー</text>
+
+    <rect x="556" y="232" width="272" height="48" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="572" y="253" fill="currentColor" font-size="11.5" font-family="var(--sl-font-mono, ui-monospace, monospace)">GLROLE_HR_DEV</text>
+    <text x="572" y="270" fill="currentColor" fill-opacity="0.7" font-size="10">グローバルロール — 参照権限のみ</text>
+  </g>
+</svg>
 
 2人の IAM ユーザーは DB 上では同一の `DBUSER_IAM` として扱われますが、所属グループに応じて **異なるグローバルロールが適用**されます。
 また統合監査の `EXTERNAL_USERID` 列には OCI ユーザーの OCID が記録されるため、同一 DB ユーザーでも「誰が操作したか」を追跡できます。

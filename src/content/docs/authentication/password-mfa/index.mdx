@@ -22,16 +22,67 @@ Oracle Database では、ローカルユーザーのログインに対して多�
 
 ## 仕組みの概要
 
-```
-[ DBクライアント ]     [ Oracle Database ]      [ OCI IAM ]
-        |                     |                     |
-        |── パスワードで接続 ──▶|                     |
-        |                     |── OMAプッシュ要求 ──▶|
-        |                     |                     |── プッシュ通知送信 ─▶ [ OMAアプリ ]
-        |                     |                     |                           |
-        |                     |◀──── 承認結果 ───────|◀──────── 承認 ────────────|
-        |◀── 接続完了 ─────────|                     |
-```
+<svg
+  viewBox="0 0 860 310"
+  width="860"
+  height="310"
+  role="img"
+  aria-labelledby="mfa-flow-title mfa-flow-desc"
+  style="max-width:100%;height:auto;margin-block:1.5rem;font-family:var(--sl-font, ui-sans-serif, system-ui, sans-serif)"
+>
+  <title id="mfa-flow-title">ローカルユーザー MFA の認証フロー</title>
+  <desc id="mfa-flow-desc">
+    DB クライアントがパスワードで接続すると、Oracle Database が OCI IAM 経由でユーザーの OMA アプリへプッシュ通知を送り、承認結果が DB に返って接続が完了する。
+  </desc>
+
+  <defs>
+    <marker id="mfa-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="currentColor" />
+    </marker>
+  </defs>
+
+  <g fill="currentColor" font-size="12.5" font-weight="600">
+    <rect x="20" y="14" width="150" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="95" y="38" text-anchor="middle">DB クライアント</text>
+
+    <rect x="255" y="14" width="160" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="335" y="38" text-anchor="middle">Oracle Database</text>
+
+    <rect x="495" y="14" width="150" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="570" y="38" text-anchor="middle">OCI IAM</text>
+
+    <rect x="705" y="14" width="140" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="775" y="38" text-anchor="middle">OMA アプリ</text>
+  </g>
+
+  <g stroke="currentColor" stroke-opacity="0.35" stroke-dasharray="4 4">
+    <line x1="95" y1="54" x2="95" y2="284" />
+    <line x1="335" y1="54" x2="335" y2="284" />
+    <line x1="570" y1="54" x2="570" y2="284" />
+    <line x1="775" y1="54" x2="775" y2="284" />
+  </g>
+
+  <g fill="currentColor" font-size="12.5" text-anchor="middle">
+    <text x="215" y="82">① パスワードで接続</text>
+    <text x="452" y="116">② OMA プッシュ要求</text>
+    <text x="672" y="150">③ プッシュ通知送信</text>
+    <text x="672" y="192">④ 承認</text>
+    <text x="452" y="226">⑤ 承認結果</text>
+    <text x="215" y="260">⑥ 接続完了</text>
+  </g>
+
+  <g stroke="currentColor" stroke-width="1.5" marker-end="url(#mfa-arrow)">
+    <line x1="95" y1="90" x2="335" y2="90" />
+    <line x1="335" y1="124" x2="570" y2="124" />
+    <line x1="570" y1="158" x2="775" y2="158" />
+  </g>
+
+  <g stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#mfa-arrow)">
+    <line x1="775" y1="200" x2="570" y2="200" />
+    <line x1="570" y1="234" x2="335" y2="234" />
+    <line x1="335" y1="268" x2="95" y2="268" />
+  </g>
+</svg>
 
 1. DB ユーザーがパスワードで接続要求を送る
 2. DB が OCI IAM（機密アプリケーション）経由でユーザーの OMA アプリへプッシュ通知を送る

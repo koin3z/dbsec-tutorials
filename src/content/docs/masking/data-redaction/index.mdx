@@ -31,6 +31,57 @@ DB 内部のデータ自体は変更されず、アプリケーションに返�
 - `expression` パラメータで適用条件を指定（例：`SYS_CONTEXT('USERENV','SESSION_USER') = 'SALES_APP'`）
 - ポリシーの状態は `redaction_policies` / `redaction_columns` ビューで確認できる
 
+クエリ実行時、対象列に対して次のようにマスキングの適用が判定されます。
+
+<svg
+  viewBox="0 0 780 250"
+  width="780"
+  height="250"
+  role="img"
+  aria-labelledby="redact-flow-title redact-flow-desc"
+  style="max-width:100%;height:auto;margin-block:1.5rem;font-family:var(--sl-font, ui-sans-serif, system-ui, sans-serif)"
+>
+  <title id="redact-flow-title">Data Redaction の適用フロー</title>
+  <desc id="redact-flow-desc">
+    クエリ実行時に DBMS_REDACT ポリシーの expression を評価し、条件に一致するセッションにはマスクした値を、一致しないセッションには実際の値を返す。テーブルの実データは変更されない。
+  </desc>
+
+  <defs>
+    <marker id="redact-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="currentColor" />
+    </marker>
+  </defs>
+
+  <g>
+    <rect x="20" y="92" width="160" height="56" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="100" y="116" text-anchor="middle" fill="currentColor" font-size="12" font-weight="600">クエリ実行</text>
+    <text x="100" y="134" text-anchor="middle" fill="currentColor" fill-opacity="0.7" font-size="10">SELECT ... FROM 表</text>
+
+    <rect x="240" y="82" width="210" height="76" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.4" />
+    <text x="345" y="112" text-anchor="middle" fill="currentColor" font-size="12" font-weight="600">DBMS_REDACT ポリシー評価</text>
+    <text x="345" y="132" text-anchor="middle" fill="currentColor" fill-opacity="0.7" font-size="10">対象列に対し expression を判定</text>
+
+    <rect x="500" y="34" width="260" height="60" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-opacity="0.35" />
+    <text x="516" y="58" fill="currentColor" font-size="12" font-weight="600">マスクした値を返す</text>
+    <text x="516" y="78" fill="currentColor" fill-opacity="0.75" font-size="10">FULL=0 / 空文字、PARTIAL、RANDOM、REGEXP</text>
+
+    <rect x="500" y="146" width="260" height="60" rx="6" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-opacity="0.35" />
+    <text x="516" y="170" fill="currentColor" font-size="12" font-weight="600">実際の値を返す</text>
+    <text x="516" y="190" fill="currentColor" fill-opacity="0.75" font-size="10">expression 不一致 / NONE</text>
+  </g>
+
+  <line x1="180" y1="120" x2="240" y2="120" stroke="currentColor" stroke-width="1.5" marker-end="url(#redact-arrow)" />
+  <path d="M450 108 C476 108 476 64 500 64" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#redact-arrow)" />
+  <path d="M450 132 C476 132 476 176 500 176" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#redact-arrow)" />
+  <g fill="currentColor" font-size="10" fill-opacity="0.8">
+    <text x="460" y="82">条件に一致</text>
+    <text x="460" y="164">一致しない</text>
+  </g>
+
+  <rect x="20" y="220" width="740" height="24" rx="4" fill="currentColor" fill-opacity="0.04" stroke="currentColor" stroke-opacity="0.2" />
+  <text x="30" y="236" fill="currentColor" font-size="10" fill-opacity="0.8">テーブルの実データは変更されない（Data in Use の保護）。WHERE 句・副問い合わせは実データに対して評価される点に注意。</text>
+</svg>
+
 ## 主要プロシージャ
 
 | プロシージャ | 用途 |

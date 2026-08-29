@@ -18,7 +18,7 @@ IAM グループを Data Role にマッピングすることで、OCI IAM トー
 
 ## 前提条件
 
-- [ローカル・エンドユーザーによる Deep Data Security](../tutorial/localenduser-dds#2-%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%82%B9%E3%82%AD%E3%83%BC%E3%83%9E%E3%81%A8%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E4%BD%9C%E6%88%9) のサンプルスキーマ（`hr.employees`）および表が作成されていること
+- [ローカル・エンドユーザーによる Deep Data Security](../localenduser-dds) のサンプルスキーマ（`hr.employees`）および表が作成されていること
 
 ## 1. OCI IAM Identity Domains の設定
 

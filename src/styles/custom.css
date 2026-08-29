@@ -39,6 +39,8 @@
   --site-rule: hsl(224, 10%, 28%);           /* h2 の区切り罫 */
   --site-table-border: hsl(224, 10%, 24%);   /* テーブルの罫線 */
   --site-table-head-bg: hsl(224, 14%, 15%);  /* テーブル見出し行の背景 */
+  --site-quote-bar: hsl(224, 9%, 42%);       /* 引用ブロックの左バー */
+  --site-quote-bg: hsl(224, 14%, 13%);       /* 引用ブロックの背景 */
 }
 :root[data-theme='light'] {
   --site-muted-text: hsl(224, 12%, 30%);       /* light: しっかり濃いグレー */
@@ -46,6 +48,8 @@
   --site-rule: hsl(224, 15%, 82%);
   --site-table-border: hsl(224, 14%, 84%);
   --site-table-head-bg: hsl(224, 20%, 92%);
+  --site-quote-bar: hsl(224, 12%, 66%);
+  --site-quote-bg: hsl(224, 22%, 93%);
 }
 
 /* =========================================================
@@ -356,4 +360,20 @@ html[data-has-hero] .sl-markdown-content .sl-heading-wrapper.level-h2:first-of-t
 .sl-markdown-content td > ul li + li {
   margin-top: 0.15rem;
 }
+
+/* =========================================================
+   9. 引用ブロック（blockquote）
+   Starlight 既定は「細い左罫＋字下げ」だけで本文と差が出ないため、
+   左バーを太く・薄い背景・少し落とした文字色で軽く区別する。
+   ========================================================= */
+.sl-markdown-content blockquote:not(:where(.not-content *, .starlight-aside *)) {
+  border-inline-start: 3px solid var(--site-quote-bar);
+  border-radius: 0 0.25rem 0.25rem 0;
+  background: var(--site-quote-bg);
+  padding: 0.75rem 1rem;
+  margin-block: 1.25rem;
+  color: var(--site-muted-text);
+}
+.sl-markdown-content blockquote > :first-child { margin-top: 0; }
+.sl-markdown-content blockquote > :last-child  { margin-bottom: 0; }
 

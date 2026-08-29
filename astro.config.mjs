@@ -31,6 +31,90 @@ export default defineConfig({
   gtag('config', 'G-XY4JW48D03');
   `
         },
+        {
+          tag: 'script',
+          content: `
+  (function () {
+    function overlay() {
+      var o = document.getElementById('img-zoom');
+      if (o) return o;
+      o = document.createElement('div');
+      o.id = 'img-zoom';
+      o.setAttribute('role', 'dialog');
+      o.setAttribute('aria-label', '拡大画像');
+      o.innerHTML = '<img alt="">';
+      o.addEventListener('click', hide);
+      document.body.appendChild(o);
+      return o;
+    }
+    function show(src, alt) {
+      var o = overlay();
+      var im = o.firstChild;
+      im.src = src;
+      im.alt = alt || '';
+      o.classList.add('open');
+      document.documentElement.classList.add('img-zoom-lock');
+    }
+    function hide() {
+      var o = document.getElementById('img-zoom');
+      if (o) o.classList.remove('open');
+      document.documentElement.classList.remove('img-zoom-lock');
+    }
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (!t || t.tagName !== 'IMG') return;
+      if (!t.closest('.sl-markdown-content')) return;
+      if (t.closest('a')) return;
+      show(t.currentSrc || t.src, t.alt);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') hide();
+    });
+  })();
+  `
+        },
+        {
+          tag: 'script',
+          content: `
+  (function () {
+    var KEY = 'sidebar-collapsed';
+    try {
+      if (localStorage.getItem(KEY) === '1') {
+        document.documentElement.classList.add('sidebar-collapsed');
+      }
+    } catch (e) {}
+
+    function isCollapsed() {
+      return document.documentElement.classList.contains('sidebar-collapsed');
+    }
+    function apply(on) {
+      document.documentElement.classList.toggle('sidebar-collapsed', on);
+      try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) {}
+      var b = document.getElementById('sidebar-toggle');
+      if (b) b.setAttribute('aria-expanded', String(!on));
+    }
+    function insertButton() {
+      if (document.getElementById('sidebar-toggle')) return;
+      var wrap = document.querySelector('.header .title-wrapper');
+      if (!wrap) return;
+      var b = document.createElement('button');
+      b.id = 'sidebar-toggle';
+      b.type = 'button';
+      b.setAttribute('aria-label', 'サイドバーの表示切り替え');
+      b.setAttribute('aria-expanded', String(!isCollapsed()));
+      b.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="9" y1="4" x2="9" y2="20"></line></svg>';
+      b.addEventListener('click', function () { apply(!isCollapsed()); });
+      wrap.insertBefore(b, wrap.firstChild);
+    }
+    document.addEventListener('astro:page-load', insertButton);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', insertButton);
+    } else {
+      insertButton();
+    }
+  })();
+  `
+        },
       ],
       customCss: [
         './src/styles/custom.css',

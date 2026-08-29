@@ -18,12 +18,13 @@ hero:
 ---
 
 import { LinkCard, CardGrid, Aside } from '@astrojs/starlight/components';
+import SectionIcon from '../../components/SectionIcon.astro';
 
 各手順は **Oracle Database 26ai Free** を前提にしています。まず [Getting Started](./getting-started) で SQLcl とサンプルスキーマを用意してください。  
 このサイトのチュートリアルは，上から順に読む必要はなく，ご興味のある各機能から試すことが可能です。  
 
 
-## 認証 — 誰がログインできるか
+## <SectionIcon name="fingerprint" />認証 — 誰がログインできるか
 
 DB に接続できる主体を制御し，なりすましや不正ログインのリスクを下げます。  
 ローカルユーザーの認証強化（MFA）に加え，OCI IAM や Microsoft Entra ID などの外部 IdP と連携し，ユーザー管理を一元化する方式を扱います。
@@ -35,7 +36,7 @@ DB に接続できる主体を制御し，なりすましや不正ログイン�
   <LinkCard title="多要素認証（MFA）" description="パスワードに加えて第二の認証要素を要求し，Database ログインを強化します。" href="./authentication/password-mfa/" />
 </CardGrid>
 
-## アクセス制御 — 何が見え，何を操作できるか
+## <SectionIcon name="shield-check" />アクセス制御 — 何が見え，何を操作できるか
 
 正規のログイン後に，行・列・操作の単位でアクセスを絞ります。  
 利用時のデータ（Data in Use）を守る層で，行・列レベルの絞り込み（VPD / OLS / Deep Data Security），特権ユーザーの抑止と職務分離（Database Vault），想定外の SQL の遮断（SQL Firewall）が含まれます。
@@ -48,7 +49,7 @@ DB に接続できる主体を制御し，なりすましや不正ログイン�
   <LinkCard title="Deep Data Security" description="26ai 新機能。エンドユーザーのコンテキストで行・列制御を DB 層に実装し，AI エージェントのアドホックなクエリにもアクセス制御を対応させます。" href="./access-control/deep-data-security/" />
 </CardGrid>
 
-## 暗号化・マスキング — データそのものを読めなくする
+## <SectionIcon name="lock" />暗号化・マスキング — データそのものを読めなくする
 
 データを暗号化またはマスクし，経路や媒体を奪われても中身を読めなくします。  
 保存データ（Data at Rest）は TDE，通信経路（Data in Transit）は NNE / TLS，クエリ結果は Data Redaction が担当します。

@@ -37,11 +37,15 @@
   --site-muted-text: var(--sl-color-gray-3);   /* dark: 明るい灰 */
   --site-nav-caret: hsl(224, 7%, 48%);       /* UI 記号として 3:1 以上を確保 */
   --site-rule: hsl(224, 10%, 28%);           /* h2 の区切り罫 */
+  --site-table-border: hsl(224, 10%, 24%);   /* テーブルの罫線 */
+  --site-table-head-bg: hsl(224, 14%, 15%);  /* テーブル見出し行の背景 */
 }
 :root[data-theme='light'] {
   --site-muted-text: hsl(224, 12%, 30%);       /* light: しっかり濃いグレー */
   --site-nav-caret: hsl(224, 10%, 45%);
   --site-rule: hsl(224, 15%, 82%);
+  --site-table-border: hsl(224, 14%, 84%);
+  --site-table-head-bg: hsl(224, 20%, 92%);
 }
 
 /* =========================================================
@@ -194,3 +198,148 @@ html[data-has-hero] .sl-markdown-content .sl-heading-wrapper.level-h2 {
 html[data-has-hero] .sl-markdown-content .sl-heading-wrapper.level-h2:first-of-type {
   margin-top: 1.5rem;
 }
+
+/* =========================================================
+   6. 画像クリックで拡大（lightbox）
+   astro.config.mjs の head スクリプトが #img-zoom を生成する
+   ========================================================= */
+.sl-markdown-content img {
+  cursor: zoom-in;
+}
+.sl-markdown-content a img {
+  cursor: auto;
+}
+
+/* 拡大表示中に背面をスクロールさせない */
+.img-zoom-lock {
+  overflow: hidden;
+}
+
+#img-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 100;                 /* Starlight のヘッダー(10)より前面 */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background: hsl(224 30% 6% / 0.85);
+  cursor: zoom-out;
+  overscroll-behavior: contain;
+}
+#img-zoom.open {
+  display: flex;
+}
+#img-zoom img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 6px;
+  box-shadow: 0 12px 48px hsl(0 0% 0% / 0.5);
+  animation: img-zoom-in 0.15s ease;
+}
+@keyframes img-zoom-in {
+  from { transform: scale(0.96); opacity: 0.6; }
+  to   { transform: none;        opacity: 1;   }
+}
+@media (prefers-reduced-motion: reduce) {
+  #img-zoom img { animation: none; }
+}
+
+/* =========================================================
+   7. 左サイドバーの開閉（デスクトップのみ）
+   astro.config.mjs の head スクリプトが #sidebar-toggle を
+   ヘッダーへ差し込み、<html> の .sidebar-collapsed を切り替える
+   ========================================================= */
+#sidebar-toggle {
+  display: none;
+}
+
+@media (min-width: 50rem) {
+  #sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    margin-inline-end: 0.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: var(--site-muted-text);
+    cursor: pointer;
+  }
+  #sidebar-toggle:hover {
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-white);
+  }
+  #sidebar-toggle:focus-visible {
+    outline: 2px solid var(--sl-color-text-accent);
+    outline-offset: 2px;
+  }
+
+  .sidebar-pane { transition: transform 0.2s ease; }
+  .main-frame   { transition: padding-inline-start 0.2s ease; }
+
+  /* --sl-sidebar-width 自体は変えない（右サイドバーの位置計算が
+     この変数を参照しているため）。本文の余白だけを 0 にする。 */
+  html.sidebar-collapsed {
+    --sl-content-inline-start: 0rem;
+  }
+  html.sidebar-collapsed .main-frame {
+    padding-inline-start: 0;
+  }
+  html.sidebar-collapsed .sidebar-pane {
+    transform: translateX(-100%);
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-pane,
+  .main-frame { transition: none; }
+}
+
+/* =========================================================
+   8. テーブル：シンプルな罫線グリッド
+   Starlight 既定（下線のみ・端の余白ゼロ）を、見出し行に薄い
+   背景を敷いた素直なグリッド表に置き換える。
+   ========================================================= */
+.sl-markdown-content table:not(:where(.not-content *)) {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-block: 1.5rem;
+  font-size: 0.9375rem;
+}
+.sl-markdown-content :is(th, td):not(:where(.not-content *, .starlight-aside *)) {
+  border: 1px solid var(--site-table-border);
+  padding: 0.5rem 0.9rem;
+  vertical-align: top;
+  text-align: start;
+}
+/* Starlight は端セルの内側パディングを 0 にしているので戻す */
+.sl-markdown-content :is(th:first-child, td:first-child):not(:where(.not-content *)) {
+  padding-inline-start: 0.9rem;
+}
+.sl-markdown-content :is(th:last-child, td:last-child):not(:where(.not-content *)) {
+  padding-inline-end: 0.9rem;
+}
+.sl-markdown-content thead th:not(:where(.not-content *)) {
+  background: var(--site-table-head-bg);
+  color: var(--sl-color-white);
+  font-weight: 600;
+}
+/* セル内の箇条書きを詰める */
+.sl-markdown-content td > ul:not(:where(.not-content *)) {
+  margin-block: 0;
+  padding-inline-start: 1.1rem;
+}
+.sl-markdown-content td > ul li + li {
+  margin-top: 0.15rem;
+}
+
